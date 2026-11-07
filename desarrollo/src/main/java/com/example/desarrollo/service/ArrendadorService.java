@@ -52,7 +52,10 @@ public class ArrendadorService {
         usuarioService.validarQueSoyYo(id);
         Arrendador arrendador = buscar(id);
         arrendador.setNombre(dto.getNombre());
-        arrendador.setDniFoto(dto.getDniFoto());
+        // Only replace the DNI photo when a new one is sent (empty = keep the current one)
+        if (dto.getDniFoto() != null && !dto.getDniFoto().isBlank()) {
+            arrendador.setDniFoto(dto.getDniFoto());
+        }
         log.info("Arrendador {} actualizó su perfil", id);
         return modelMapper.map(arrendador, ArrendadorResponseDTO.class);
     }

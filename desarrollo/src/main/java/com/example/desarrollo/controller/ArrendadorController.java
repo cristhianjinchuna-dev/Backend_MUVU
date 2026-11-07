@@ -1,11 +1,16 @@
 package com.example.desarrollo.controller;
 
-import com.example.desarrollo.dto.ArrendadorRequestDTO;
 import com.example.desarrollo.dto.ArrendadorResponseDTO;
 import com.example.desarrollo.dto.ArrendadorUpdateRequestDTO;
+import com.example.desarrollo.dto.HabitacionResponseDTO;
 import com.example.desarrollo.service.ArrendadorService;
+import com.example.desarrollo.service.HabitacionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +20,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ArrendadorController {
     private final ArrendadorService arrendadorService;
+    private final HabitacionService habitacionService;
 
     @GetMapping("/{id}")
     public ResponseEntity<ArrendadorResponseDTO> getArrendadorById(@PathVariable Long id) {
         return ResponseEntity.ok(arrendadorService.findById(id));
+    }
+
+    // Habitaciones publicadas por un arrendador (panel del arrendador)
+    @GetMapping("/{id}/habitaciones")
+    public ResponseEntity<Page<HabitacionResponseDTO>> getHabitacionesDelArrendador(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") @Min(value = 0, message = "La página no puede ser negativa") int page,
+            @RequestParam(defaultValue = "10")
+            @Min(value = 1, message = "El tamaño de página debe ser al menos 1")
+            @Max(value = 100, message = "El tamaño de página no puede superar 100") int size) {
+        return ResponseEntity.ok(habitacionService.findByArrendador(id, PageRequest.of(page, size)));
     }
 
     @PreAuthorize("hasAuthority('ARRENDADOR')")

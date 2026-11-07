@@ -60,8 +60,7 @@ class ControllersTest {
 
     @Test
     void arrendador_delegaEnElServicio() {
-        ArrendadorController controller = new ArrendadorController(arrendadorService);
-
+        ArrendadorController controller = new ArrendadorController(arrendadorService, habitacionService);
         assertEquals(200, controller.getArrendadorById(2L).getStatusCode().value());
         assertEquals(200, controller.updateArrendador(2L, new ArrendadorUpdateRequestDTO()).getStatusCode().value());
         assertEquals(200, controller.verificarArrendador(2L).getStatusCode().value());

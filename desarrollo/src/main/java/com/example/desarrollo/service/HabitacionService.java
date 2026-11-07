@@ -141,6 +141,17 @@ public class HabitacionService {
                 .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
     }
 
+    // Habitaciones de un arrendador (su panel), las más recientes primero
+    public Page<HabitacionResponseDTO> findByArrendador(Long arrendadorId, Pageable pageable) {
+        if (!arrendadorRepository.existsById(arrendadorId)) {
+            throw new ResourceNotFoundException("Arrendador no encontrado con ID: " + arrendadorId);
+        }
+        Pageable masRecientes = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                Sort.by("id").descending());
+        return habitacionRepository.findByArrendadorId(arrendadorId, masRecientes)
+                .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
+    }
+
     // Delete (DELETE)
     @Transactional
     public void deleteById(Long id) {
