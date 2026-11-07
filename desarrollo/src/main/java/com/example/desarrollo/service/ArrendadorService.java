@@ -15,6 +15,8 @@ import com.example.desarrollo.repository.HabitacionRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,12 @@ public class ArrendadorService {
     // Read (GET)
     public ArrendadorResponseDTO findById(Long id) {
         return modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
+    }
+
+    // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller)
+    public Page<ArrendadorResponseDTO> getAll(Pageable pageable) {
+        return arrendadorRepository.findAll(pageable)
+                .map(a -> modelMapper.map(a, ArrendadorResponseDTO.class));
     }
 
     @Transactional

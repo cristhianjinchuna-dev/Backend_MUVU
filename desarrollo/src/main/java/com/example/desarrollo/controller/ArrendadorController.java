@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,13 @@ import org.springframework.web.bind.annotation.*;
 public class ArrendadorController {
     private final ArrendadorService arrendadorService;
     private final HabitacionService habitacionService;
+
+    // Lista de arrendadores para el panel del administrador (paginada)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping
+    public ResponseEntity<Page<ArrendadorResponseDTO>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(arrendadorService.getAll(pageable));
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ArrendadorResponseDTO> getArrendadorById(@PathVariable Long id) {
