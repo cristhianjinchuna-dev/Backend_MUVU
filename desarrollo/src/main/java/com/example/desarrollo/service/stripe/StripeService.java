@@ -1,16 +1,15 @@
 package com.example.desarrollo.service.stripe;
 
-import lombok.extern.slf4j.Slf4j;
 import com.example.desarrollo.exceptions.PaymentException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.PaymentIntentRetrieveParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 public class StripeService {
 
@@ -22,29 +21,41 @@ public class StripeService {
         Stripe.apiKey = secretKey;
     }
 
-    public PaymentIntent procesarCobro(Long habitacionId,Double monto, String moneda) throws StripeException {
-        // Stripe requiere el monto expresado en la unidad mínima de la moneda (centavos/céntimos)
-        long montoEnCentavos = Math.round(monto * 100);
-
+    public PaymentIntent crearIntentoPublicidad(Long habitacionId, Long arrendadorId, Double monto) throws StripeException {
+        long montoEnCentimos = Math.round(monto * 100);
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                .setAmount(montoEnCentavos)
-                .setCurrency(moneda.toLowerCase())
+                .setAmount(montoEnCentimos)
+                .setCurrency("pen")
+                .addPaymentMethodType("card")
                 .putMetadata("habitacionId", String.valueOf(habitacionId))
-                .setPaymentMethod("pm_card_visa")   // tarjeta de prueba oficial de Stripe
-                .setConfirm(true)                   // ejecuta el cobro inmediatamente
-                .setAutomaticPaymentMethods(
-                        PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
-                                .setEnabled(true)
-                                .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
-                                .build()
-                )
+                .putMetadata("arrendadorId", String.valueOf(arrendadorId))
+                .putMetadata("monto", String.valueOf(monto))
                 .build();
+        return PaymentIntent.create(params);
+    }
 
-        PaymentIntent pago = PaymentIntent.create(params);
-        log.info("PaymentIntent {} con estado {} para la habitación {}", pago.getId(), pago.getStatus(), habitacionId);
-        if (!"succeeded".equals(pago.getStatus())) {
-            throw new PaymentException("El pago no fue aprobado. Estado: " + pago.getStatus());
+    public PaymentIntent obtenerIntento(String paymentIntentId) throws StripeException {
+        PaymentIntentRetrieveParams params = PaymentIntentRetrieveParams.builder()
+                .addExpand("payment_method")
+                .build();
+        return PaymentIntent.retrieve(paymentIntentId, params, null);
+    }
+
+    public void validarPagoPublicidad(PaymentIntent intent, Long habitacionId, Long arrendadorId, Double monto) {
+        if (intent.getMetadata() == null) {
+            throw new PaymentException("El intento de Stripe no contiene metadatos de publicidad");
         }
-        return pago;
+        String montoMetadata = intent.getMetadata().get("monto");
+        long montoEsperado = Math.round(monto * 100);
+        if (!"succeeded".equals(intent.getStatus())
+                || !"pen".equalsIgnoreCase(intent.getCurrency())
+                || intent.getAmount() == null
+                || intent.getAmount() != montoEsperado
+                || !String.valueOf(habitacionId).equals(intent.getMetadata().get("habitacionId"))
+                || !String.valueOf(arrendadorId).equals(intent.getMetadata().get("arrendadorId"))
+                || montoMetadata == null
+                || Double.compare(monto, Double.parseDouble(montoMetadata)) != 0) {
+            throw new PaymentException("El pago de Stripe no coincide con el plan solicitado");
+        }
     }
 }

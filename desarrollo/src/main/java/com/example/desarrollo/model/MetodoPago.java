@@ -1,6 +1,7 @@
 package com.example.desarrollo.model;
 
 public enum MetodoPago {
-    TARJETA_DEBITO,
-    TARJETA_CREDITO
+    TARJETA,
+    APPLE_PAY,
+    GOOGLE_PAY
 }

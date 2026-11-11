@@ -241,7 +241,9 @@ Base: `/api/v1`. Las rutas protegidas usan `Authorization: Bearer <token>`. Los 
 | Reservas | `GET`, `POST /reservas` · `PATCH /reservas/{id}/cancelar` · `PATCH /reservas/{id}/confirmar` | Estudiante / Arrendador dueño |
 | Arrendadores y estudiantes | `GET`, `PUT`, `DELETE /{id}` · `PATCH /arrendadores/{id}/verificar` (Admin) · `GET /estudiantes/{id}/perfil` | Autenticado |
 | Universidades | `GET` (público) · `POST`, `DELETE` (Admin) | Público / Admin |
-| Pagos de publicidad | `POST /pagos-publicidad` (30 = 30 días, 54 = 60 días), `GET /pagos-publicidad` | Arrendador |
+| Pagos de publicidad | `POST /pagos-publicidad/intenciones`, `POST /pagos-publicidad/{paymentIntentId}/confirmar`, `GET /pagos-publicidad` | Arrendador |
+
+Los pagos de publicidad se aceptan con Apple Pay y Google Pay mediante Stripe; el backend identifica el wallet confirmado y lo registra como `APPLE_PAY` o `GOOGLE_PAY`. Los pagos semilla antiguos se conservan con el valor generico `TARJETA`.
 
 La colección [`postman_collection.json`](postman_collection.json) documenta cada endpoint con descripción, ejemplos y autorización.
 
@@ -253,7 +255,8 @@ La colección [`postman_collection.json`](postman_collection.json) documenta cad
 | Variable | Uso |
 |---|---|
 | `JWT_SECRET` | Firma de los tokens (mínimo 32 caracteres) |
-| `GOOGLE_MAPS_API_KEY`, `STRIPE_SECRET_KEY` | Geocodificación y pagos de prueba |
+| `GOOGLE_MAPS_API_KEY`, `STRIPE_SECRET_KEY` | Mapas y pagos de prueba |
+| `STRIPE_WEBHOOK_SECRET` | Firma webhook; localmente usar `stripe listen --events payment_intent.succeeded --forward-to localhost:8080/api/v1/stripe/webhook` |
 | `MAIL_USERNAME`, `MAIL_PASSWORD` | Gmail y su contraseña de aplicación |
 | `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `PORT` | Opcionales en local; se usan en producción |
 | `JWT_*_EXPIRATION`, `CORS_ALLOWED_ORIGINS` | Opcionales, con valores por defecto |

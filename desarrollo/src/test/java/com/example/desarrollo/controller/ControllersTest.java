@@ -132,10 +132,16 @@ class ControllersTest {
     }
 
     @Test
-    void pagoPublicidad_registraCon201() {
+    void pagoPublicidad_creaIntentoCon201YConfirmaCon200() {
         PagoPublicidadController controller = new PagoPublicidadController(pagoPublicidadService);
+        CrearPagoPublicidadIntentRequestDTO solicitud = new CrearPagoPublicidadIntentRequestDTO();
+        solicitud.setHabitacionId(1L);
+        solicitud.setMonto(30.0);
+        when(pagoPublicidadService.crearIntento(1L, 30.0))
+                .thenReturn(new PagoPublicidadIntentResponseDTO("pi_test", "secret_test"));
 
-        assertEquals(201, controller.registrarPago(new PagoPublicidadRequestDTO()).getStatusCode().value());
+        assertEquals(201, controller.crearIntento(solicitud).getStatusCode().value());
+        assertEquals(200, controller.confirmar("pi_test").getStatusCode().value());
         assertEquals(200, controller.listarTodos().getStatusCode().value());
     }
 

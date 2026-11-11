@@ -98,21 +98,21 @@ INSERT INTO habitacion (direccion, latitud, longitud, precio, area, es_destacada
 -- ---------- Pagos de publicidad de las habitaciones destacadas (vigentes) ----------
 -- 30 = 30 días, 54 = 60 días. Las fechas son relativas al día en que arranca la app.
 INSERT INTO pago_publicidad (habitacion_id, monto, metodo_pago, fecha_inicio, fecha_fin) VALUES
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Colina 940 Dpto. 504, Barranco, Lima'), 30.0, 'TARJETA_DEBITO', CURRENT_DATE - 8, CURRENT_DATE + 22),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 1120 Dpto. 302, Barranco, Lima'), 54.0, 'TARJETA_CREDITO', CURRENT_DATE - 54, CURRENT_DATE + 6),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 200 Dpto. 404, Barranco, Lima'), 30.0, 'TARJETA_CREDITO', CURRENT_DATE - 8, CURRENT_DATE + 22),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Caminos del Inca 1450, Santiago de Surco, Lima'), 54.0, 'TARJETA_DEBITO', CURRENT_DATE - 55, CURRENT_DATE + 5),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1150, Santiago de Surco, Lima'), 30.0, 'TARJETA_CREDITO', CURRENT_DATE - 23, CURRENT_DATE + 7),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1740, Santiago de Surco, Lima'), 54.0, 'TARJETA_CREDITO', CURRENT_DATE - 15, CURRENT_DATE + 45),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1020 Dpto. 803, San Miguel, Lima'), 30.0, 'TARJETA_DEBITO', CURRENT_DATE - 17, CURRENT_DATE + 13),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Federico Gallese 1660, San Miguel, Lima'), 54.0, 'TARJETA_CREDITO', CURRENT_DATE - 39, CURRENT_DATE + 21),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1190, San Miguel, Lima'), 30.0, 'TARJETA_CREDITO', CURRENT_DATE - 12, CURRENT_DATE + 18),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Mariscal Miller 1070 Dpto. 702, Jesús María, Lima'), 54.0, 'TARJETA_DEBITO', CURRENT_DATE - 40, CURRENT_DATE + 20),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1850 Dpto. 201, Jesús María, Lima'), 30.0, 'TARJETA_CREDITO', CURRENT_DATE - 12, CURRENT_DATE + 18),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1390, Jesús María, Lima'), 54.0, 'TARJETA_CREDITO', CURRENT_DATE - 22, CURRENT_DATE + 38),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1700 Dpto. 603, La Molina, Lima'), 30.0, 'TARJETA_DEBITO', CURRENT_DATE - 4, CURRENT_DATE + 26),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1770, La Molina, Lima'), 54.0, 'TARJETA_CREDITO', CURRENT_DATE - 35, CURRENT_DATE + 25),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Las Retamas 1490, La Molina, Lima'), 30.0, 'TARJETA_CREDITO', CURRENT_DATE - 2, CURRENT_DATE + 28);
+((SELECT id FROM habitacion WHERE direccion = 'Jr. Colina 940 Dpto. 504, Barranco, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 8, CURRENT_DATE + 22),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 1120 Dpto. 302, Barranco, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 54, CURRENT_DATE + 6),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 200 Dpto. 404, Barranco, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 8, CURRENT_DATE + 22),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Caminos del Inca 1450, Santiago de Surco, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 55, CURRENT_DATE + 5),
+((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1150, Santiago de Surco, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 23, CURRENT_DATE + 7),
+((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1740, Santiago de Surco, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 15, CURRENT_DATE + 45),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1020 Dpto. 803, San Miguel, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 17, CURRENT_DATE + 13),
+((SELECT id FROM habitacion WHERE direccion = 'Calle Federico Gallese 1660, San Miguel, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 39, CURRENT_DATE + 21),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1190, San Miguel, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 12, CURRENT_DATE + 18),
+((SELECT id FROM habitacion WHERE direccion = 'Jr. Mariscal Miller 1070 Dpto. 702, Jesús María, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 40, CURRENT_DATE + 20),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1850 Dpto. 201, Jesús María, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 12, CURRENT_DATE + 18),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1390, Jesús María, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 22, CURRENT_DATE + 38),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1700 Dpto. 603, La Molina, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 4, CURRENT_DATE + 26),
+((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1770, La Molina, Lima'), 54.0, 'TARJETA', CURRENT_DATE - 35, CURRENT_DATE + 25),
+((SELECT id FROM habitacion WHERE direccion = 'Jr. Las Retamas 1490, La Molina, Lima'), 30.0, 'TARJETA', CURRENT_DATE - 2, CURRENT_DATE + 28);
 
 -- ---------- Arrendador SIN verificar (id 7): para probar PATCH /arrendadores/{id}/verificar ----------
 INSERT INTO usuario (nombre, correo, contrasena, verificado, rol)

@@ -1,6 +1,7 @@
 package com.example.desarrollo.controller;
 
-import com.example.desarrollo.dto.PagoPublicidadRequestDTO;
+import com.example.desarrollo.dto.CrearPagoPublicidadIntentRequestDTO;
+import com.example.desarrollo.dto.PagoPublicidadIntentResponseDTO;
 import com.example.desarrollo.dto.PagoPublicidadResponseDTO;
 import com.example.desarrollo.service.PagoPublicidadService;
 import jakarta.validation.Valid;
@@ -21,10 +22,16 @@ public class PagoPublicidadController {
     private final PagoPublicidadService pagoPublicidadService;
 
 
-    @PostMapping
-    public ResponseEntity<PagoPublicidadResponseDTO> registrarPago(@Valid @RequestBody PagoPublicidadRequestDTO requestDTO) {
-        PagoPublicidadResponseDTO nuevoPago = pagoPublicidadService.registrarPago(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPago);
+    @PostMapping("/intenciones")
+    public ResponseEntity<PagoPublicidadIntentResponseDTO> crearIntento(
+            @Valid @RequestBody CrearPagoPublicidadIntentRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(pagoPublicidadService.crearIntento(requestDTO.getHabitacionId(), requestDTO.getMonto()));
+    }
+
+    @PostMapping("/{paymentIntentId}/confirmar")
+    public ResponseEntity<PagoPublicidadResponseDTO> confirmar(@PathVariable String paymentIntentId) {
+        return ResponseEntity.ok(pagoPublicidadService.confirmarDesdeCliente(paymentIntentId));
     }
 
 
