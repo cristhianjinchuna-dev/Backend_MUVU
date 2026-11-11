@@ -31,6 +31,9 @@ public class PagoPublicidad {
     @Column(nullable = false)
     private Double monto;
 
+    @Column(name = "stripe_payment_intent_id", unique = true, length = 255)
+    private String stripePaymentIntentId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "metodo_pago", nullable = false, length = 20)
     private MetodoPago metodoPago;

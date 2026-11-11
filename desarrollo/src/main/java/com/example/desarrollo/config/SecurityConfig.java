@@ -79,7 +79,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ===== Públicos =====
-                        .requestMatchers("/error", "/api/v1/auth/**").permitAll()
+                        .requestMatchers("/error", "/api/v1/auth/**", "/api/v1/stripe/webhook").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/habitaciones/**", "/api/v1/universidades/**").permitAll()
 
                         // ===== El resto requiere login; los permisos por rol están con @PreAuthorize en cada controller =====

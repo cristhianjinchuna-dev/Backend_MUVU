@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface PagoPublicidadRepository extends JpaRepository<PagoPublicidad, Long> {
 
+    java.util.Optional<PagoPublicidad> findByStripePaymentIntentId(String stripePaymentIntentId);
+
     @EntityGraph(attributePaths = "habitacion")
     List<PagoPublicidad> findByFechaFinBefore(LocalDate fecha);
 

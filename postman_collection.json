@@ -1854,11 +1854,11 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/pagos-publicidad",
-            "description": "Paga con Stripe (modo prueba) para destacar una habitación propia: 30 = 30 días, 54 = 60 días. Requiere `STRIPE_SECRET_KEY`. Envía un comprobante por correo.",
+            "url": "{{baseUrl}}/pagos-publicidad/intenciones",
+            "description": "Crea un PaymentIntent para pagar en PEN con Stripe Elements. El backend registra y activa la publicidad tras confirmar el pago. Requiere STRIPE_SECRET_KEY y STRIPE_WEBHOOK_SECRET.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0,\n  \"metodoPago\": \"TARJETA_CREDITO\"\n}",
+              "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1877,10 +1877,10 @@
                     "value": "application/json"
                   }
                 ],
-                "url": "{{baseUrl}}/pagos-publicidad",
+                "url": "{{baseUrl}}/pagos-publicidad/intenciones",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0,\n  \"metodoPago\": \"TARJETA_CREDITO\"\n}",
+                  "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1897,7 +1897,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"id\": 16,\n  \"habitacionId\": 1,\n  \"monto\": 30.0,\n  \"metodoPago\": \"TARJETA_CREDITO\",\n  \"fechaInicio\": \"2026-09-25\",\n  \"fechaFin\": \"2026-10-25\"\n}"
+              "body": "{\n  \"paymentIntentId\": \"pi_test_example\",\n  \"clientSecret\": \"pi_test_example_secret_example\"\n}"
             },
             {
               "name": "400 Monto no permitido",
@@ -1909,10 +1909,10 @@
                     "value": "application/json"
                   }
                 ],
-                "url": "{{baseUrl}}/pagos-publicidad",
+                "url": "{{baseUrl}}/pagos-publicidad/intenciones",
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0,\n  \"metodoPago\": \"TARJETA_CREDITO\"\n}",
+                  "raw": "{\n  \"habitacionId\": {{habitacionId}},\n  \"monto\": 30.0\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -1929,7 +1929,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"timestamp\": \"2026-09-25T10:00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Monto no permitido. Solo son 2 opciones disponibles\",\n  \"path\": \"/api/v1/pagos-publicidad\"\n}"
+              "body": "{\n  \"timestamp\": \"2026-09-25T10:00:00\",\n  \"status\": 400,\n  \"error\": \"Bad Request\",\n  \"message\": \"Monto no permitido. Solo son 2 opciones disponibles\",\n  \"path\": \"/api/v1/pagos-publicidad/intenciones\"\n}"
             }
           ],
           "event": [
@@ -1969,7 +1969,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "[\n  {\n    \"id\": 1,\n    \"habitacionId\": 1,\n    \"monto\": 30.0,\n    \"metodoPago\": \"TARJETA_DEBITO\",\n    \"fechaInicio\": \"2026-09-17\",\n    \"fechaFin\": \"2026-10-17\"\n  }\n]"
+              "body": "[\n  {\n    \"id\": 1,\n    \"habitacionId\": 1,\n    \"monto\": 30.0,\n    \"metodoPago\": \"APPLE_PAY\",\n    \"fechaInicio\": \"2026-09-17\",\n    \"fechaFin\": \"2026-10-17\"\n  }\n]"
             }
           ],
           "event": [
