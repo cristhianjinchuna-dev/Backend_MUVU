@@ -14,6 +14,8 @@ import java.util.List;
 public class HabitacionDetailDTO {
     private Long id;
     private String direccion;
+    private Double latitud;
+    private Double longitud;
     private double precio;
     private Integer area;
     private List<ImagenResponseDTO> imagenes;

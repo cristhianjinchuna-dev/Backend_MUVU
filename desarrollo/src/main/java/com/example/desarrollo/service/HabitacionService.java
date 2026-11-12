@@ -7,6 +7,7 @@ import com.example.desarrollo.dto.HabitacionRequestDTO;
 import com.example.desarrollo.dto.HabitacionResponseDTO;
 import com.example.desarrollo.dto.ImagenResponseDTO;
 import com.example.desarrollo.exceptions.ForbiddenException;
+import com.example.desarrollo.exceptions.InvalidOperationException;
 import com.example.desarrollo.exceptions.ResourceNotFoundException;
 import com.example.desarrollo.model.Arrendador;
 import com.example.desarrollo.model.Habitacion;
@@ -101,6 +102,7 @@ public class HabitacionService {
     // Create (POST)
     @Transactional
     public HabitacionResponseDTO save(HabitacionRequestDTO habitacionRequestDTO) {
+        validarParCoordenadas(habitacionRequestDTO);
         Arrendador yo = arrendadorRepository.findById(usuarioService.getIdUsuarioActual())
                 .orElseThrow(() -> new ResourceNotFoundException("Arrendador no encontrado"));
 
@@ -112,9 +114,7 @@ public class HabitacionService {
         Habitacion newHabitacion = modelMapper.map(habitacionRequestDTO, Habitacion.class);
         newHabitacion.setArrendador(yo);
 
-        LatLng coords = googleMapsService.obtenerCoordenadas(newHabitacion.getDireccion());
-        newHabitacion.setLatitud(coords.lat);
-        newHabitacion.setLongitud(coords.lng);
+        aplicarCoordenadas(newHabitacion, habitacionRequestDTO);
         newHabitacion = habitacionRepository.save(newHabitacion);
         log.info("Habitación {} publicada por el arrendador {}", newHabitacion.getId(), yo.getId());
         publisher.publishEvent(new ActualizacionHabitacionesEvent(this, yo.getId()));
@@ -163,9 +163,13 @@ public class HabitacionService {
 
     @Transactional
     public HabitacionResponseDTO update(Long id, HabitacionRequestDTO dto) {
+        validarParCoordenadas(dto);
         Habitacion habitacion = buscarPropia(id);
 
-        if (!habitacion.getDireccion().equalsIgnoreCase(dto.getDireccion())) {
+        if (dto.getLatitud() != null) {
+            habitacion.setLatitud(dto.getLatitud());
+            habitacion.setLongitud(dto.getLongitud());
+        } else if (!habitacion.getDireccion().equalsIgnoreCase(dto.getDireccion())) {
             LatLng coords = googleMapsService.obtenerCoordenadas(dto.getDireccion());
             habitacion.setLatitud(coords.lat);
             habitacion.setLongitud(coords.lng);
@@ -176,6 +180,23 @@ public class HabitacionService {
         log.info("Habitación {} actualizada", id);
 
         return modelMapper.map(habitacion, HabitacionResponseDTO.class);
+    }
+
+    private void aplicarCoordenadas(Habitacion habitacion, HabitacionRequestDTO dto) {
+        if (dto.getLatitud() != null) {
+            habitacion.setLatitud(dto.getLatitud());
+            habitacion.setLongitud(dto.getLongitud());
+            return;
+        }
+        LatLng coords = googleMapsService.obtenerCoordenadas(habitacion.getDireccion());
+        habitacion.setLatitud(coords.lat);
+        habitacion.setLongitud(coords.lng);
+    }
+
+    private void validarParCoordenadas(HabitacionRequestDTO dto) {
+        if ((dto.getLatitud() == null) != (dto.getLongitud() == null)) {
+            throw new InvalidOperationException("La latitud y longitud deben enviarse juntas");
+        }
     }
 
     // Busca la habitación y valida que sea del arrendador logueado
