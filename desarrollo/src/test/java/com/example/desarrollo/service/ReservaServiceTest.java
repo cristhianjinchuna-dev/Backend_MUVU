@@ -80,6 +80,16 @@ class ReservaServiceTest {
     }
 
     @Test
+    void crearReserva_enHabitacionOcultaPorElAdmin_lanzaInvalidOperation() {
+        prepararCreacion();
+        habitacion.setOculta(true);
+
+        assertThrows(InvalidOperationException.class,
+                () -> reservaService.createReserva(solicitud(hoy.plusDays(1), hoy.plusDays(5))));
+        verify(reservaRepository, never()).save(any());
+    }
+
+    @Test
     void crearReserva_conFechasOcupadas_lanzaConflict() {
         prepararCreacion();
         Reserva existente = new Reserva(hoy.plusDays(3), hoy.plusDays(10), estudiante, habitacion);

@@ -10,6 +10,7 @@ import com.example.desarrollo.dto.Logueo.RefreshTokenRequestDTO;
 import com.example.desarrollo.dto.Logueo.ResetPasswordRequestDTO;
 import com.example.desarrollo.dto.Logueo.TokenResponseDTO;
 import com.example.desarrollo.exceptions.DuplicateResourceException;
+import com.example.desarrollo.exceptions.ForbiddenException;
 import com.example.desarrollo.exceptions.InvalidTokenException;
 import com.example.desarrollo.exceptions.ResourceNotFoundException;
 import com.example.desarrollo.model.*;
@@ -102,6 +103,9 @@ public class AuthService {
         }
         Usuario usuario = usuarioRepository.findById(jwtService.extractUserId(refreshToken))
                 .orElseThrow(() -> new InvalidTokenException("El usuario del token ya no existe"));
+        if (!usuario.isEnabled()) {
+            throw new ForbiddenException("Tu cuenta está suspendida por un administrador");
+        }
         return generarRespuesta(usuario);
     }
 
