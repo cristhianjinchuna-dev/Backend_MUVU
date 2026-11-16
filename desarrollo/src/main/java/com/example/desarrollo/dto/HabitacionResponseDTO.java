@@ -19,4 +19,5 @@ public class HabitacionResponseDTO {
     private Boolean esDestacada;
     private Double distanciaKm;
     private Integer area;
+    private Boolean oculta; // moderación: solo el dueño y el ADMIN ven habitaciones ocultas
 }

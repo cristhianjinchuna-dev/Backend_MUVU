@@ -31,6 +31,7 @@ class ControllersTest {
     @Mock private PagoPublicidadService pagoPublicidadService;
     @Mock private ReservaService reservaService;
     @Mock private UniversidadService universidadService;
+    @Mock private ModeracionService moderacionService;
 
     private final PageRequest primeraPagina = PageRequest.of(0, 10, Sort.by("id").descending());
 
@@ -84,9 +85,9 @@ class ControllersTest {
         assertEquals(200, controller.getById(5L).getStatusCode().value());
         assertEquals(200, controller.getByHabitacion(1L, 0, 10).getStatusCode().value());
         assertEquals(200, controller.getByEstudiante(3L, 0, 10).getStatusCode().value());
-        assertEquals(204, controller.deleteCalificacion(5L).getStatusCode().value());
+        assertEquals(204, controller.deleteCalificacion(5L, null).getStatusCode().value());
         verify(calificacionService).findByHabitacion(1L, primeraPagina);
-        verify(calificacionService).deleteById(5L);
+        verify(calificacionService).deleteById(5L, null);
     }
 
     @Test
@@ -104,7 +105,7 @@ class ControllersTest {
     @Test
     void habitacion_creaCon201YLocation() {
         simularPeticion("/api/v1/habitaciones");
-        HabitacionController controller = new HabitacionController(habitacionService);
+        HabitacionController controller = new HabitacionController(habitacionService, moderacionService);
         HabitacionResponseDTO creada = new HabitacionResponseDTO();
         creada.setId(1L);
         when(habitacionService.save(any())).thenReturn(creada);

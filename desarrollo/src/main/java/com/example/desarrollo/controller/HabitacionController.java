@@ -3,7 +3,9 @@ package com.example.desarrollo.controller;
 import com.example.desarrollo.dto.HabitacionDetailDTO;
 import com.example.desarrollo.dto.HabitacionRequestDTO;
 import com.example.desarrollo.dto.HabitacionResponseDTO;
+import com.example.desarrollo.dto.VisibilidadRequestDTO;
 import com.example.desarrollo.service.HabitacionService;
+import com.example.desarrollo.service.ModeracionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Max;
@@ -31,6 +33,7 @@ public class HabitacionController {
     private static final String ORDEN_POR_DEFECTO = "recomendadas";
 
     private final HabitacionService habitacionService;
+    private final ModeracionService moderacionService;
 
     // Habitaciones dentro de un radio (km) alrededor de una universidad
     @GetMapping("/cercanas")
@@ -96,6 +99,14 @@ public class HabitacionController {
     public ResponseEntity<HabitacionResponseDTO> updateHabitacion(
             @PathVariable Long id, @Valid @RequestBody HabitacionRequestDTO dto) {
         return ResponseEntity.ok(habitacionService.update(id, dto));
+    }
+
+    // Moderación: el ADMIN oculta (o vuelve a publicar) una habitación inapropiada
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PatchMapping("/{id}/visibilidad")
+    public ResponseEntity<Void> cambiarVisibilidad(@PathVariable Long id, @Valid @RequestBody VisibilidadRequestDTO dto) {
+        moderacionService.cambiarVisibilidad(id, dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasAuthority('ARRENDADOR')")

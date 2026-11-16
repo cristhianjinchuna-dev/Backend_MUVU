@@ -12,6 +12,12 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
     Page<Habitacion> findByArrendadorId(Long arrendadorId, Pageable pageable);
 
     // Búsqueda del listado principal: dirección que contenga el texto + precio entre min y max
-    Page<Habitacion> findByDireccionContainingIgnoreCaseAndPrecioBetween(
+    // Solo habitaciones públicas: no ocultas por el ADMIN y con el arrendador sin suspender
+    Page<Habitacion> findByDireccionContainingIgnoreCaseAndPrecioBetweenAndOcultaFalseAndArrendadorSuspendidoFalse(
             String direccion, double precioMin, double precioMax, Pageable pageable);
+
+    Page<Habitacion> findByOcultaFalseAndArrendadorSuspendidoFalse(Pageable pageable);
+
+    // Perfil público de un arrendador: sin las ocultas
+    Page<Habitacion> findByArrendadorIdAndOcultaFalse(Long arrendadorId, Pageable pageable);
 }

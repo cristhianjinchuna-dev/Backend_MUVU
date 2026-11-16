@@ -2,6 +2,7 @@ package com.example.desarrollo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import com.example.desarrollo.Events.ActualizacionPromedioEvent;
+import com.example.desarrollo.Events.NotificacionCorreoEvent;
 import com.example.desarrollo.dto.CalificacionRequestDTO;
 import com.example.desarrollo.dto.CalificacionResponseDTO;
 import org.springframework.context.ApplicationEventPublisher;
@@ -99,15 +100,32 @@ public class CalificacionService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
+    // La borra su autor o el ADMIN (moderación). Si fue el ADMIN, se avisa al autor con el motivo
+    public void deleteById(Long id, String motivo) {
         Calificacion calificacion = calificacionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No existe calificacion con el ID: " + id));
 
-        usuarioService.validarQueSoyYo(calificacion.getAutor().getId());
+        Estudiante autor = calificacion.getAutor();
+        usuarioService.validarQueSoyYo(autor.getId());
         calificacionRepository.delete(calificacion);
         log.info("Calificación {} eliminada", id);
 
+        if (!autor.getId().equals(usuarioService.getIdUsuarioActual())) {
+            String detalleMotivo = motivo == null || motivo.isBlank() ? "" : "\n\nMotivo: " + motivo.trim();
+            publisher.publishEvent(new NotificacionCorreoEvent(this, Mail.para(autor.getCorreo(),
+                    "MuvU: eliminamos una de tus reseñas",
+                    "Hola " + autor.getNombre() + ", un administrador eliminó tu reseña de la habitación en "
+                            + calificacion.getReceptor().getDireccion() + " porque no cumple las normas de MuvU."
+                            + detalleMotivo)));
+        }
+
         publisher.publishEvent(new ActualizacionPromedioEvent(this, calificacion.getReceptor().getArrendador().getId()));
+    }
+
+    // Todas las reseñas, las más nuevas primero (panel de moderación del ADMIN)
+    @Transactional(readOnly = true)
+    public Page<CalificacionResponseDTO> findAll(Pageable pageable) {
+        return calificacionRepository.findAll(pageable).map(this::toResponseDTO);
     }
 
     // En la entidad la habitación se llama "receptor", por eso ModelMapper no llena habitacionId

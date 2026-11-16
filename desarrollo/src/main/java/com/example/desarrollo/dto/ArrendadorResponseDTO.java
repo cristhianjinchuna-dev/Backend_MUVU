@@ -21,4 +21,5 @@ public class ArrendadorResponseDTO {
     private String fotoPerfil;
     // Solo lo ve el propio usuario o el ADMIN (el service lo oculta para los demás)
     private String telefono;
+    private Boolean suspendido; // moderación (lo usa el panel del ADMIN)
 }

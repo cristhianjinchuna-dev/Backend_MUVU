@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -76,6 +77,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         log.warn("Inicio de sesión fallido en {}", request.getRequestURI());
         return build(HttpStatus.UNAUTHORIZED, "Correo o contraseña incorrectos", request, null);
+    }
+
+    // Login de una cuenta suspendida por el ADMIN (Usuario.isEnabled() = false)
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponseDTO> handleCuentaSuspendida(DisabledException ex, HttpServletRequest request) {
+        return build(HttpStatus.FORBIDDEN,
+                "Tu cuenta está suspendida por un administrador. Revisa tu correo para más detalles.", request, null);
     }
 
     // Petición sin token o con token inválido/expirado (viene desde el filtro de seguridad)

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -44,6 +45,11 @@ public abstract class Usuario implements UserDetails {
     @Column(nullable = false)
     private Boolean verificado = false;
 
+    // Moderación: una cuenta suspendida no puede iniciar sesión ni usar sus tokens (isEnabled = false)
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private Boolean suspendido = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Rol rol;
@@ -71,5 +77,11 @@ public abstract class Usuario implements UserDetails {
     @Override
     public String getPassword() {
         return contrasena;
+    }
+
+    // Spring Security rechaza el login de una cuenta deshabilitada (DisabledException)
+    @Override
+    public boolean isEnabled() {
+        return !Boolean.TRUE.equals(suspendido);
     }
 }

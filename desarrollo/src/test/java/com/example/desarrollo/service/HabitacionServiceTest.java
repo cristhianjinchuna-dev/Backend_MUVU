@@ -156,13 +156,13 @@ class HabitacionServiceTest {
 
     @Test
     void findAll_ordenaDestacadasPrimero() {
-        when(habitacionRepository.findAll(any(Pageable.class)))
+        when(habitacionRepository.findByOcultaFalseAndArrendadorSuspendidoFalse(any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(habitacion(1L, -12.1, -77.0, true))));
 
         Page<HabitacionResponseDTO> pagina = habitacionService.findAll(PageRequest.of(0, 10));
 
         ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
-        verify(habitacionRepository).findAll(captor.capture());
+        verify(habitacionRepository).findByOcultaFalseAndArrendadorSuspendidoFalse(captor.capture());
         assertEquals(Sort.Direction.DESC, captor.getValue().getSort().getOrderFor("esDestacada").getDirection());
         assertEquals(1, pagina.getContent().size());
     }

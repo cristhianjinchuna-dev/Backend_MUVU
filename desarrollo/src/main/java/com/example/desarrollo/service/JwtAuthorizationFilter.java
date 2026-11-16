@@ -40,13 +40,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 try {
                     String correo = jwtService.extractUsername(token);
                     UserDetails user = usuarioService.loadUserByUsername(correo);
+                    if (!user.isEnabled()) {
+                        // Cuenta suspendida por el ADMIN: la petición sigue como anónima (401/403)
+                        log.warn("Token de una cuenta suspendida: {}", correo);
+                    } else {
+                        var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContext context = SecurityContextHolder.createEmptyContext();
-                    context.setAuthentication(auth);
-                    SecurityContextHolder.setContext(context);
+                        SecurityContext context = SecurityContextHolder.createEmptyContext();
+                        context.setAuthentication(auth);
+                        SecurityContextHolder.setContext(context);
+                    }
                 } catch (UsernameNotFoundException e) {
                     log.warn("Token válido pero el usuario ya no existe");
                 }

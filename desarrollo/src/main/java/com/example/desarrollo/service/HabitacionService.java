@@ -57,6 +57,7 @@ public class HabitacionService {
         // 3. Mapear a DTO, calcular distancia Haversine, filtrar por radio y ordenar
         List<HabitacionResponseDTO> filtradas = todas.stream()
                 .filter(h -> h.getLatitud() != null && h.getLongitud() != null)
+                .filter(HabitacionService::esPublica)
                 .map(habitacion -> {
                     double distancia = calcularHaversine(
                             universidad.getLatitud(), universidad.getLongitud(),
@@ -127,6 +128,7 @@ public class HabitacionService {
         Habitacion habitacion = habitacionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Habitación no encontrada con ID: " + id));
         HabitacionDetailDTO dto = modelMapper.map(habitacion, HabitacionDetailDTO.class);
+        dto.setDisponible(esPublica(habitacion));
         dto.setImagenes(habitacion.getImagenes().stream()
                 .map(img -> new ImagenResponseDTO(img.getId(), img.getUrl(), habitacion.getId()))
                 .toList());
@@ -138,7 +140,7 @@ public class HabitacionService {
     public Page<HabitacionResponseDTO> findAll(Pageable pageable) {
         Pageable destacadasPrimero = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                 Sort.by("esDestacada").descending());
-        return habitacionRepository.findAll(destacadasPrimero)
+        return habitacionRepository.findByOcultaFalseAndArrendadorSuspendidoFalse(destacadasPrimero)
                 .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
     }
 
@@ -157,7 +159,7 @@ public class HabitacionService {
         };
         Pageable conOrden = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return habitacionRepository.findByDireccionContainingIgnoreCaseAndPrecioBetween(
+        return habitacionRepository.findByDireccionContainingIgnoreCaseAndPrecioBetweenAndOcultaFalseAndArrendadorSuspendidoFalse(
                         texto == null ? "" : texto.trim(),
                         precioMin == null ? 0 : precioMin,
                         precioMax == null ? Double.MAX_VALUE : precioMax,
@@ -172,8 +174,11 @@ public class HabitacionService {
         }
         Pageable masRecientes = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                 Sort.by("id").descending());
-        return habitacionRepository.findByArrendadorId(arrendadorId, masRecientes)
-                .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
+        // El dueño y el ADMIN ven también las ocultas (con su marca); los demás solo las públicas
+        Page<Habitacion> habitaciones = usuarioService.puedeVerDatosPrivados(arrendadorId)
+                ? habitacionRepository.findByArrendadorId(arrendadorId, masRecientes)
+                : habitacionRepository.findByArrendadorIdAndOcultaFalse(arrendadorId, masRecientes);
+        return habitaciones.map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
     }
 
     // Delete (DELETE)
@@ -216,6 +221,12 @@ public class HabitacionService {
         LatLng coords = googleMapsService.obtenerCoordenadas(habitacion.getDireccion());
         habitacion.setLatitud(coords.lat);
         habitacion.setLongitud(coords.lng);
+    }
+
+    // Pública = no la ocultó el ADMIN y su arrendador no está suspendido (se puede buscar y reservar)
+    public static boolean esPublica(Habitacion h) {
+        boolean arrendadorSuspendido = h.getArrendador() != null && Boolean.TRUE.equals(h.getArrendador().getSuspendido());
+        return !Boolean.TRUE.equals(h.getOculta()) && !arrendadorSuspendido;
     }
 
     // Texto opcional: espacios de más fuera, y vacío se guarda como null

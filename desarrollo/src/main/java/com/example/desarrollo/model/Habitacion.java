@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.ColumnDefault;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,6 +46,11 @@ public class Habitacion {
 
     @Column(nullable = false)
     private Boolean esDestacada = false;
+
+    // Moderación: el ADMIN la oculta si es inapropiada (no sale en búsquedas ni se puede reservar)
+    @ColumnDefault("false")
+    @Column(nullable = false)
+    private Boolean oculta = false;
 
     // Texto libre del arrendador: servicios, reglas, cercanías... Opcional
     @Size(max = 1000)

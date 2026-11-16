@@ -76,6 +76,9 @@ public class ReservaService {
         Habitacion habitacion = habitacionRepository.findById(dto.getHabitacionId())
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontro habitacion con id: " + dto.getHabitacionId()));
 
+        if (!HabitacionService.esPublica(habitacion)) {
+            throw new InvalidOperationException("Esta habitación no está disponible para reservas");
+        }
         validarFechas(habitacion.getId(), dto.getFecha_inicio(), dto.getFecha_fin());
 
         Reserva nueva = new Reserva(dto.getFecha_inicio(), dto.getFecha_fin(), yo, habitacion);
