@@ -143,38 +143,70 @@ INSERT INTO estudiante (id, universidad_id) VALUES
 ((SELECT id FROM usuario WHERE correo = 'fernanda.ruiz@unmsm.edu.pe'), (SELECT id FROM universidad WHERE nombre = 'UNMSM')),
 ((SELECT id FROM usuario WHERE correo = 'renato.salazar@ulima.edu.pe'), (SELECT id FROM universidad WHERE nombre = 'Universidad de Lima'));
 
--- ---------- Imágenes (2 por habitación en 15 habitaciones) ----------
-INSERT INTO imagen (habitacion_id, url) VALUES
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Colina 940 Dpto. 504, Barranco, Lima'), 'https://picsum.photos/seed/muvu-1-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Colina 940 Dpto. 504, Barranco, Lima'), 'https://picsum.photos/seed/muvu-1-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 1120 Dpto. 302, Barranco, Lima'), 'https://picsum.photos/seed/muvu-2-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 1120 Dpto. 302, Barranco, Lima'), 'https://picsum.photos/seed/muvu-2-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 200 Dpto. 404, Barranco, Lima'), 'https://picsum.photos/seed/muvu-3-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Grau 200 Dpto. 404, Barranco, Lima'), 'https://picsum.photos/seed/muvu-3-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Caminos del Inca 1450, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-4-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Caminos del Inca 1450, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-4-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1150, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-5-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1150, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-5-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1740, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-6-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Los Álamos 1740, Santiago de Surco, Lima'), 'https://picsum.photos/seed/muvu-6-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1020 Dpto. 803, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-7-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1020 Dpto. 803, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-7-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Federico Gallese 1660, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-8-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Calle Federico Gallese 1660, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-8-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1190, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-9-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Universitaria 1190, San Miguel, Lima'), 'https://picsum.photos/seed/muvu-9-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Mariscal Miller 1070 Dpto. 702, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-10-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Mariscal Miller 1070 Dpto. 702, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-10-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1850 Dpto. 201, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-11-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1850 Dpto. 201, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-11-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1390, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-12-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Brasil 1390, Jesús María, Lima'), 'https://picsum.photos/seed/muvu-12-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1700 Dpto. 603, La Molina, Lima'), 'https://picsum.photos/seed/muvu-13-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1700 Dpto. 603, La Molina, Lima'), 'https://picsum.photos/seed/muvu-13-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1770, La Molina, Lima'), 'https://picsum.photos/seed/muvu-14-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Av. Javier Prado Este 1770, La Molina, Lima'), 'https://picsum.photos/seed/muvu-14-2/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Las Retamas 1490, La Molina, Lima'), 'https://picsum.photos/seed/muvu-15-1/800/600'),
-((SELECT id FROM habitacion WHERE direccion = 'Jr. Las Retamas 1490, La Molina, Lima'), 'https://picsum.photos/seed/muvu-15-2/800/600');
+-- ---------- Imágenes (fotos reales de dormitorios y baños, Unsplash: uso libre) ----------
+-- Cada habitación recibe 2 fotos de dormitorio distintas; las de 18 m² o más (con baño propio) también una del baño.
+-- Las URLs son de images.unsplash.com; w=1200 deja un tamaño liviano para la galería.
+WITH fotos AS (
+    SELECT ARRAY[
+        '1646148707098-a27b818d5c95',
+        '1646490577169-2be2bba96c86',
+        '1646743742987-cf69915d21cf',
+        '1646572961739-58557003b037',
+        '1646838116343-1fd356d7e4e8',
+        '1647521088714-a9952b135c1e',
+        '1647705722868-3ff8e93b73b2',
+        '1647949849240-143a5da605ca',
+        '1647870988181-5298e3b9036e',
+        '1648125700798-d3233f118ec6',
+        '1648668425549-84b695d2ec2a',
+        '1648690979774-a36ae455bacd',
+        '1648726660921-7413e1b0f93b',
+        '1648949416036-cf80a1335cce',
+        '1649265825072-f7dd6942baed',
+        '1649817018876-c05473c7e5a4',
+        '1650637472771-16fedc3c6668',
+        '1652363499754-ec1ef28f88ac',
+        '1651869835364-9686f86159c1',
+        '1522771739844-6a9f6d5f14af',
+        '1552558636-f6a8f071c2b3',
+        '1617325247661-675ab4b64ae2',
+        '1699942681763-d1da9f692489',
+        '1757344454333-cc666252e596',
+        '1765862835319-18fb6f8caff6',
+        '1718717722247-26f4c6c09192',
+        '1610307522657-8c0304960189',
+        '1760072513376-67a46aab0fd1',
+        '1779903726446-6f796d533d47',
+        '1555854877-bab0e564b8d5',
+        '1564273795917-fe399b763988',
+        '1549881567-c622c1080d78',
+        '1572496973076-dc34056ceb87',
+        '1588939349575-7ab15c8bd1ef',
+        '1634120830231-4d9dabb67e2d',
+        '1721743169043-dda0212ce3d4'
+    ] AS dormitorios,
+    ARRAY[
+        '1584622650111-993a426fbf0a',
+        '1631889993959-41b4e9c6e3c5',
+        '1629079447777-1e605162dc8d',
+        '1552321554-5fefe8c9ef14',
+        '1643949719317-4342d8d4031e',
+        '1576698483491-8c43f0862543',
+        '1646592491820-49bafd614c0e'
+    ] AS banos
+), habs AS (
+    SELECT id, area, (row_number() OVER (ORDER BY id) - 1)::int AS n FROM habitacion
+)
+INSERT INTO imagen (habitacion_id, url)
+SELECT h.id, 'https://images.unsplash.com/photo-' || f.dormitorios[1 + h.n % 36] || '?w=1200&q=80&auto=format&fit=crop'
+FROM habs h, fotos f
+UNION ALL
+SELECT h.id, 'https://images.unsplash.com/photo-' || f.dormitorios[1 + (h.n + 18) % 36] || '?w=1200&q=80&auto=format&fit=crop'
+FROM habs h, fotos f
+UNION ALL
+SELECT h.id, 'https://images.unsplash.com/photo-' || f.banos[1 + h.n % 7] || '?w=1200&q=80&auto=format&fit=crop'
+FROM habs h, fotos f
+WHERE h.area >= 18;
 
 -- ---------- Reservas (ids 1 a 16, sin cruces de fechas en una misma habitación) ----------
 -- 1-8: confirmadas y ya calificadas | 9: confirmada SIN calificar (Postman la califica como ana.ramos)
