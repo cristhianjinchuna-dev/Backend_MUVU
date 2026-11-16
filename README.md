@@ -11,6 +11,14 @@
 
 ---
 
+| | Enlace |
+|---|---|
+| API (este repo) | `https://muvu-api.duckdns.org/api/v1` |
+| Web | https://muvu-rouge.vercel.app · repo [Proyecto_frontend](https://github.com/cristhianjinchuna-dev/Proyecto_frontend) |
+| App móvil (APK Android) | [Release v1.0.0](https://github.com/Eduardo-Vila-coder/MuvU---Mobile/releases/tag/v1.0.0) · repo [MuvU---Mobile](https://github.com/Eduardo-Vila-coder/MuvU---Mobile) |
+
+> **Disponibilidad del backend:** la API corre en una instancia EC2 de **AWS Academy (Learner Lab)**, que AWS apaga automáticamente al terminar cada sesión del laboratorio (máximo 4 horas). Mientras el laboratorio está encendido, todo el stack funciona por HTTPS. Para revisar el proyecto, coordinar con el equipo para encender el laboratorio; al encenderse, el backend y el HTTPS arrancan solos (servicios `systemd`), sin pasos manuales, y la IP elástica y el dominio no cambian. Comprobación rápida: [`/api/v1/universidades`](https://muvu-api.duckdns.org/api/v1/universidades) debe responder con un JSON.
+
 ## Índice
 
 1. [Introducción](#1-introducción)
