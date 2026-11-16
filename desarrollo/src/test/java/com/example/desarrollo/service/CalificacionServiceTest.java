@@ -1,6 +1,7 @@
 package com.example.desarrollo.service;
 
 import com.example.desarrollo.Events.ActualizacionPromedioEvent;
+import com.example.desarrollo.Events.NotificacionCorreoEvent;
 import com.example.desarrollo.dto.CalificacionRequestDTO;
 import com.example.desarrollo.dto.CalificacionResponseDTO;
 import com.example.desarrollo.exceptions.DuplicateResourceException;
@@ -174,12 +175,26 @@ class CalificacionServiceTest {
     void eliminar_validaAutorYActualizaPromedio() {
         Calificacion calificacion = calificacion();
         when(calificacionRepository.findById(5L)).thenReturn(Optional.of(calificacion));
+        when(usuarioService.getIdUsuarioActual()).thenReturn(3L); // la borra su propio autor
 
-        calificacionService.deleteById(5L);
+        calificacionService.deleteById(5L, null);
 
         verify(usuarioService).validarQueSoyYo(3L);
         verify(calificacionRepository).delete(calificacion);
         verify(publisher).publishEvent(any(ActualizacionPromedioEvent.class));
+        verify(publisher, never()).publishEvent(any(NotificacionCorreoEvent.class)); // no se avisa a sí mismo
+    }
+
+    @Test
+    void eliminar_porElAdmin_avisaAlAutorPorCorreo() {
+        Calificacion calificacion = calificacion();
+        when(calificacionRepository.findById(5L)).thenReturn(Optional.of(calificacion));
+        when(usuarioService.getIdUsuarioActual()).thenReturn(1L); // ADMIN (validarQueSoyYo lo deja pasar)
+
+        calificacionService.deleteById(5L, "Lenguaje ofensivo");
+
+        verify(calificacionRepository).delete(calificacion);
+        verify(publisher).publishEvent(any(NotificacionCorreoEvent.class));
     }
 
     private void prepararCreacion(Long miId, Estudiante yo) {
