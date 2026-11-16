@@ -114,6 +114,9 @@ public class CalificacionService {
     private CalificacionResponseDTO toResponseDTO(Calificacion c) {
         CalificacionResponseDTO dto = modelMapper.map(c, CalificacionResponseDTO.class);
         dto.setHabitacionId(c.getReceptor().getId());
+        if (c.getAutor() != null) {
+            dto.setAutorFotoPerfil(c.getAutor().getFotoPerfil());
+        }
         return dto;
     }
 }

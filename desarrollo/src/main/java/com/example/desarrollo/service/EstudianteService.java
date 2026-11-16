@@ -57,6 +57,10 @@ public class EstudianteService {
 
         estudiante.setNombre(dto.getNombre());
         estudiante.setUniversidad(universidad);
+        // null = mantener la foto actual, "" = quitarla, URL = foto nueva
+        if (dto.getFotoPerfil() != null) {
+            estudiante.setFotoPerfil(dto.getFotoPerfil().isBlank() ? null : dto.getFotoPerfil());
+        }
         log.info("Estudiante {} actualizó su perfil", id);
 
         return modelMapper.map(estudianteRepository.save(estudiante), EstudianteResponseDTO.class);

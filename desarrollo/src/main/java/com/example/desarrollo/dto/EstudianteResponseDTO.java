@@ -15,4 +15,5 @@ public class EstudianteResponseDTO {
     private String correo;
     private boolean verificado;
     private String universidadNombre;
+    private String fotoPerfil;
 }

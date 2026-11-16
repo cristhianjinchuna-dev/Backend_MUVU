@@ -218,3 +218,25 @@ UPDATE arrendador a SET
                                  JOIN habitacion h ON h.id = c.receptor_id WHERE h.arrendador_id = a.id), 0),
     total_calificaciones = (SELECT COUNT(*) FROM calificacion c
                             JOIN habitacion h ON h.id = c.receptor_id WHERE h.arrendador_id = a.id);
+
+-- ---------- Fotos de perfil y DNI de demo ----------
+-- Pedro Salas y Renato Salazar quedan sin foto para mostrar el avatar con la inicial
+UPDATE usuario u SET foto_perfil = v.url
+FROM (VALUES
+    ('rosa.quispe@muvu.com', 'https://randomuser.me/api/portraits/women/44.jpg'),
+    ('carlos.mendoza@muvu.com', 'https://randomuser.me/api/portraits/men/32.jpg'),
+    ('lucia.fernandez@muvu.com', 'https://randomuser.me/api/portraits/women/68.jpg'),
+    ('jorge.paredes@muvu.com', 'https://randomuser.me/api/portraits/men/45.jpg'),
+    ('maria.torres@muvu.com', 'https://randomuser.me/api/portraits/women/65.jpg'),
+    ('ana.ramos@utec.edu.pe', 'https://randomuser.me/api/portraits/women/26.jpg'),
+    ('diego.chavez@utec.edu.pe', 'https://randomuser.me/api/portraits/men/22.jpg'),
+    ('valeria.nunez@pucp.edu.pe', 'https://randomuser.me/api/portraits/women/31.jpg'),
+    ('sebastian.torres@pucp.edu.pe', 'https://randomuser.me/api/portraits/men/36.jpg'),
+    ('camila.flores@uni.edu.pe', 'https://randomuser.me/api/portraits/women/52.jpg'),
+    ('matias.herrera@uni.edu.pe', 'https://randomuser.me/api/portraits/men/18.jpg'),
+    ('fernanda.ruiz@unmsm.edu.pe', 'https://randomuser.me/api/portraits/women/90.jpg')
+) AS v(correo, url)
+WHERE u.correo = v.correo;
+
+-- El DNI de demo era un link que no existía: ahora es una imagen de prueba que sí carga
+UPDATE arrendador SET dni_foto = 'https://placehold.co/640x400/png?text=DNI+de+prueba+%23' || id;

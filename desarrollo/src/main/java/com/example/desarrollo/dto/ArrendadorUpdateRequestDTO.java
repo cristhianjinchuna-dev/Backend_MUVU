@@ -1,6 +1,7 @@
 package com.example.desarrollo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,9 @@ public class ArrendadorUpdateRequestDTO {
 
     @Size(max = 500, message = "La URL del DNI no puede superar 500 caracteres")
     private String dniFoto;
+
+    // null = mantener la foto actual, "" = quitarla, URL = foto nueva
+    @Size(max = 500, message = "La URL de la foto de perfil no puede superar 500 caracteres")
+    @Pattern(regexp = "^$|^https?://\\S+$", message = "La foto de perfil debe ser una URL que empiece con http:// o https://")
+    private String fotoPerfil;
 }

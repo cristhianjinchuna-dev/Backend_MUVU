@@ -25,4 +25,9 @@ public class EstudianteUpdateRequestDTO {
     @NotNull(message = "La universidad es obligatoria")
     @Positive(message = "El ID de la universidad debe ser positivo")
     private Long universidadId;
+
+    // null = mantener la foto actual, "" = quitarla, URL = foto nueva
+    @Size(max = 500, message = "La URL de la foto de perfil no puede superar 500 caracteres")
+    @Pattern(regexp = "^$|^https?://\\S+$", message = "La foto de perfil debe ser una URL que empiece con http:// o https://")
+    private String fotoPerfil;
 }

@@ -48,6 +48,11 @@ public abstract class Usuario implements UserDetails {
     @Column(nullable = false, length = 20)
     private Rol rol;
 
+    // URL de la foto de perfil (Cloudinary). Opcional: sin foto el frontend muestra la inicial
+    @Size(max = 500)
+    @Column(name = "foto_perfil", length = 500)
+    private String fotoPerfil;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(rol.name()));

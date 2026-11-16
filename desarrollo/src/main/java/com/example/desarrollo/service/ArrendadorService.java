@@ -2,6 +2,7 @@ package com.example.desarrollo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import com.example.desarrollo.Events.NotificacionCorreoEvent;
+import com.example.desarrollo.dto.ArrendadorAdminDTO;
 import com.example.desarrollo.dto.ArrendadorRequestDTO;
 import com.example.desarrollo.dto.ArrendadorResponseDTO;
 import com.example.desarrollo.dto.ArrendadorUpdateRequestDTO;
@@ -49,10 +50,11 @@ public class ArrendadorService {
         return modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
     }
 
-    // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller)
-    public Page<ArrendadorResponseDTO> getAll(Pageable pageable) {
+    // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller).
+    // Incluye la foto del DNI para que el admin la revise antes de verificar
+    public Page<ArrendadorAdminDTO> getAll(Pageable pageable) {
         return arrendadorRepository.findAll(pageable)
-                .map(a -> modelMapper.map(a, ArrendadorResponseDTO.class));
+                .map(a -> modelMapper.map(a, ArrendadorAdminDTO.class));
     }
 
     @Transactional
@@ -63,6 +65,10 @@ public class ArrendadorService {
         // Only replace the DNI photo when a new one is sent (empty = keep the current one)
         if (dto.getDniFoto() != null && !dto.getDniFoto().isBlank()) {
             arrendador.setDniFoto(dto.getDniFoto());
+        }
+        // null = mantener la foto de perfil actual, "" = quitarla, URL = foto nueva
+        if (dto.getFotoPerfil() != null) {
+            arrendador.setFotoPerfil(dto.getFotoPerfil().isBlank() ? null : dto.getFotoPerfil());
         }
         log.info("Arrendador {} actualizó su perfil", id);
         return modelMapper.map(arrendador, ArrendadorResponseDTO.class);

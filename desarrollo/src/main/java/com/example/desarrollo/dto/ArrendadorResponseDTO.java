@@ -18,4 +18,5 @@ public class ArrendadorResponseDTO {
     private Double puntajePromedio;
     private Long totalCalificaciones;
     private Long cantidadHabitaciones;
+    private String fotoPerfil;
 }
