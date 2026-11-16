@@ -11,6 +11,14 @@
 
 ---
 
+| | Enlace |
+|---|---|
+| API (este repo) | `https://muvu-api.duckdns.org/api/v1` |
+| Web | https://muvu-rouge.vercel.app · repo [Proyecto_frontend](https://github.com/cristhianjinchuna-dev/Proyecto_frontend) |
+| App móvil (APK Android) | [Release v1.0.0](https://github.com/Eduardo-Vila-coder/MuvU---Mobile/releases/tag/v1.0.0) · repo [MuvU---Mobile](https://github.com/Eduardo-Vila-coder/MuvU---Mobile) |
+
+> **Disponibilidad del backend:** la API corre en una instancia EC2 de **AWS Academy (Learner Lab)**, que AWS apaga automáticamente al terminar cada sesión del laboratorio (máximo 4 horas). Mientras el laboratorio está encendido, todo el stack funciona por HTTPS. Para revisar el proyecto, coordinar con el equipo para encender el laboratorio; al encenderse, el backend y el HTTPS arrancan solos (servicios `systemd`), sin pasos manuales, y la IP elástica y el dominio no cambian. Comprobación rápida: [`/api/v1/universidades`](https://muvu-api.duckdns.org/api/v1/universidades) debe responder con un JSON.
+
 ## Índice
 
 1. [Introducción](#1-introducción)
@@ -276,13 +284,13 @@ La colección [`postman_collection.json`](postman_collection.json) documenta cad
 
 ### Participación
 
-| Integrante | GitHub | Aportes principales |
-|---|---|---|
-| Cristhian Gabriel Jinchuña Cama | `cristhianjinchuna-dev` | Frontend web (pantallas de habitaciones, reservas, calificaciones, perfiles, panel del arrendador, modo oscuro, subida de fotos con Cloudinary). Backend: búsqueda y filtros, fotos de perfil, contacto tras la confirmación, descripciones y moderación del admin. App móvil (fotos, contacto, descripciones). Deploy final (HTTPS, Vercel y Expo). |
-| Yerik Dylan Vega Santillan | `Yerik-Vega` | Pagos de publicidad con **Stripe** (backend, web y móvil), integración con **Google Maps** (geocodificación, habitaciones cercanas, mapas y rutas en web y móvil) e imágenes de habitaciones. |
-| Mathias Alonso Cavalcanti Estacio | `MatCavUTEC` | Seguridad (JWT, refresh token, `@PreAuthorize`, CORS), excepciones y `GlobalExceptionHandler`, procesos asíncronos, recuperación de contraseña, documentación y panel de administración web. |
-| Eduardo Raúl Vila Castellares | `Eduardo-Vila-coder` | Esqueleto del backend, entidades, repositorios, DTOs, services y controllers de Habitación y Arrendador. Base de la app móvil (login, registro, recuperación de contraseña y flujos de estudiante y arrendador). |
-| Mathius Edgar Quispe Sicha | `MQS144` | Entidades de Reserva y Habitación, `GlobalExceptionHandler`, validaciones y centralización de excepciones. Desarrollo inicial de la app móvil. |
+| Integrante | GitHub | Aportes principales | Participación |
+|---|---|---|---|
+| Cristhian Gabriel Jinchuña Cama | `cristhianjinchuna-dev` | Frontend web (pantallas de habitaciones, reservas, calificaciones, perfiles, panel del arrendador, modo oscuro, subida de fotos con Cloudinary). Backend: búsqueda y filtros, fotos de perfil, contacto tras la confirmación, descripciones y moderación del admin. App móvil (fotos, contacto, descripciones). Deploy final (HTTPS, Vercel y Expo). | 100 % |
+| Yerik Dylan Vega Santillan | `Yerik-Vega` | Pagos de publicidad con **Stripe** (backend, web y móvil), integración con **Google Maps** (geocodificación, habitaciones cercanas, mapas y rutas en web y móvil) e imágenes de habitaciones. | 100 % |
+| Mathias Alonso Cavalcanti Estacio | `MatCavUTEC` | Seguridad (JWT, refresh token, `@PreAuthorize`, CORS), excepciones y `GlobalExceptionHandler`, procesos asíncronos, recuperación de contraseña, documentación y panel de administración web. | 100 % |
+| Eduardo Raúl Vila Castellares | `Eduardo-Vila-coder` | Esqueleto del backend, entidades, repositorios, DTOs, services y controllers de Habitación y Arrendador. Base de la app móvil (login, registro, recuperación de contraseña y flujos de estudiante y arrendador). | 100 % |
+| Mathius Edgar Quispe Sicha | `MQS144` | Entidades de Reserva y Habitación, `GlobalExceptionHandler`, validaciones y centralización de excepciones. Desarrollo inicial de la app móvil. | 100 % |
 
 ## 12. Deployment
 
