@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,4 +27,8 @@ public class ReservaRequestDTO {
     @NotNull(message = "El ID de la habitación es obligatorio")
     @Positive(message = "El ID de la habitación debe ser positivo")
     private Long habitacionId;
+
+    // Opcional: presentación del estudiante para el arrendador
+    @Size(max = 500, message = "El mensaje no puede superar 500 caracteres")
+    private String mensaje;
 }

@@ -34,4 +34,8 @@ public class EstudianteUpdateRequestDTO {
     // null = mantener el celular actual, "" = quitarlo, 9 dígitos = celular nuevo
     @Pattern(regexp = "^$|^9\\d{8}$", message = "El celular debe tener 9 dígitos y empezar con 9")
     private String telefono;
+
+    // "Sobre mí". null = mantener la actual, "" = quitarla
+    @Size(max = 500, message = "La descripción no puede superar 500 caracteres")
+    private String descripcion;
 }

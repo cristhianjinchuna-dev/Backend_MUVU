@@ -68,6 +68,10 @@ public class EstudianteService {
         if (dto.getTelefono() != null) {
             estudiante.setTelefono(dto.getTelefono().isBlank() ? null : dto.getTelefono());
         }
+        // null = mantener la descripción, "" = quitarla
+        if (dto.getDescripcion() != null) {
+            estudiante.setDescripcion(dto.getDescripcion().isBlank() ? null : dto.getDescripcion().trim());
+        }
         log.info("Estudiante {} actualizó su perfil", id);
 
         return modelMapper.map(estudianteRepository.save(estudiante), EstudianteResponseDTO.class);

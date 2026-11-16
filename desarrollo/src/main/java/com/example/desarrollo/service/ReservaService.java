@@ -78,14 +78,20 @@ public class ReservaService {
 
         validarFechas(habitacion.getId(), dto.getFecha_inicio(), dto.getFecha_fin());
 
-        Reserva reserva = reservaRepository.save(new Reserva(dto.getFecha_inicio(), dto.getFecha_fin(), yo, habitacion));
+        Reserva nueva = new Reserva(dto.getFecha_inicio(), dto.getFecha_fin(), yo, habitacion);
+        nueva.setMensaje(dto.getMensaje() == null || dto.getMensaje().isBlank() ? null : dto.getMensaje().trim());
+        Reserva reserva = reservaRepository.save(nueva);
         log.info("Reserva {} creada por el estudiante {} para la habitación {}", reserva.getId(), miId, habitacion.getId());
 
         notificar(yo.getCorreo(), "MuvU: solicitud de reserva enviada",
                 "Hola " + yo.getNombre() + ", enviaste una solicitud para " + detalle(reserva)
                         + ". Te avisaremos cuando el arrendador la confirme.");
+        String mensajeDelEstudiante = reserva.getMensaje() != null
+                ? "\n\nMensaje de " + yo.getNombre() + ":\n\"" + reserva.getMensaje() + "\""
+                : "";
         notificar(habitacion.getArrendador().getCorreo(), "MuvU: nueva solicitud de reserva",
-                yo.getNombre() + " quiere reservar " + detalle(reserva) + ". Ingresa a MuvU para confirmarla.");
+                yo.getNombre() + " quiere reservar " + detalle(reserva) + "." + mensajeDelEstudiante
+                        + "\n\nIngresa a MuvU para revisar su perfil y confirmarla.");
         return toDTO(reserva, miId);
     }
 
@@ -190,6 +196,7 @@ public class ReservaService {
         dto.setFecha_fin(r.getFecha_fin());
         dto.setHabitacionId(r.getHabitacion() != null ? r.getHabitacion().getId() : null);
         dto.setEstudianteId(r.getEstudiante() != null ? r.getEstudiante().getId() : null);
+        dto.setMensaje(r.getMensaje());
         dto.setContacto(contactoPara(r, miId));
         return dto;
     }

@@ -46,6 +46,11 @@ public class Habitacion {
     @Column(nullable = false)
     private Boolean esDestacada = false;
 
+    // Texto libre del arrendador: servicios, reglas, cercanías... Opcional
+    @Size(max = 1000)
+    @Column(length = 1000)
+    private String descripcion;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "arrendador_id", nullable = false)
     private Arrendador arrendador;

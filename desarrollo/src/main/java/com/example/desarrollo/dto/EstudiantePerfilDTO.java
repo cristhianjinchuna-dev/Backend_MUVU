@@ -18,4 +18,5 @@ public class EstudiantePerfilDTO {
     private Double puntuacionPromedio;
     private long totalCalificaciones;
     private String fotoPerfil;
+    private String descripcion;
 }

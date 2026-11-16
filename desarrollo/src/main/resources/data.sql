@@ -240,3 +240,39 @@ WHERE u.correo = v.correo;
 
 -- El DNI de demo era un link que no existía: ahora es una imagen de prueba que sí carga
 UPDATE arrendador SET dni_foto = 'https://placehold.co/640x400/png?text=DNI+de+prueba+%23' || id;
+
+-- ---------- Descripciones de demo ----------
+-- Habitaciones: texto armado con su área y distrito; 1 de cada 7 queda sin descripción a propósito
+UPDATE habitacion SET descripcion =
+    'Habitación de ' || area || ' m² en ' || split_part(direccion, ', ', 2) || '. '
+    || CASE WHEN area >= 18 THEN 'Amplia, con baño propio, closet empotrado y buena luz natural. '
+            ELSE 'Acogedora, con escritorio de estudio, closet y ventana a la calle. ' END
+    || CASE id % 4
+        WHEN 0 THEN 'Incluye wifi, agua y luz. Zona tranquila, a pocos minutos de paraderos y supermercados.'
+        WHEN 1 THEN 'Wifi de fibra óptica, cocina compartida equipada y lavandería en el edificio.'
+        WHEN 2 THEN 'Ingreso independiente y servicios incluidos. Ideal para estudiantes: no se permiten fiestas.'
+        ELSE 'Edificio con vigilancia 24 h, ascensor y áreas comunes. Se aceptan mascotas pequeñas.' END
+WHERE id % 7 <> 0;
+
+-- "Sobre mí" de algunos estudiantes (el resto queda vacío para ver el caso sin descripción)
+UPDATE estudiante e SET descripcion = v.texto
+FROM usuario u, (VALUES
+    ('ana.ramos@utec.edu.pe', 'Estudio Ingeniería de la Computación en UTEC (5.º ciclo). Soy ordenada, no fumo y paso la mayor parte del día en la universidad.'),
+    ('diego.chavez@utec.edu.pe', 'Estudiante de Bioingeniería. Vengo de Arequipa, me gusta cocinar y correr por las mañanas. Busco un lugar tranquilo para estudiar.'),
+    ('valeria.nunez@pucp.edu.pe', 'Estudio Arquitectura en la PUCP. Trabajo en maquetas, así que valoro tener un escritorio amplio. Respetuosa con los horarios.'),
+    ('camila.flores@uni.edu.pe', 'Ingeniería Civil en la UNI. Soy de Trujillo y es mi primer año en Lima. Tranquila y responsable con los pagos.'),
+    ('sebastian.torres@pucp.edu.pe', 'Estudiante de Economía. Practico básquet y paso las tardes en la biblioteca. Sin mascotas.')
+) AS v(correo, texto)
+WHERE u.id = e.id AND u.correo = v.correo;
+
+-- Mensajes de las solicitudes: el arrendador los lee antes de confirmar
+UPDATE reserva r SET mensaje = v.texto
+FROM usuario u, habitacion h, (VALUES
+    ('ana.ramos@utec.edu.pe', 'Av. Grau 1120 Dpto. 302, Barranco, Lima', 'Hola, soy Ana de UTEC. Me interesa la habitación para el próximo ciclo. ¿El precio incluye wifi? ¿Podría visitarla esta semana?'),
+    ('valeria.nunez@pucp.edu.pe', 'Av. Universitaria 1020 Dpto. 803, San Miguel, Lima', 'Buenas tardes, estudio en la PUCP y la habitación me queda a pocas cuadras. ¿Hay espacio para un escritorio grande?'),
+    ('camila.flores@uni.edu.pe', 'Calle Los Álamos 1150, Santiago de Surco, Lima', 'Hola, es mi primer año en Lima. ¿Es posible ingresar unos días antes de la fecha de inicio?'),
+    ('sebastian.torres@pucp.edu.pe', 'Av. Javier Prado Este 1700 Dpto. 603, La Molina, Lima', 'Hola, busco una habitación tranquila para todo el semestre. Puedo pagar el primer mes por adelantado.'),
+    ('diego.chavez@utec.edu.pe', 'Jr. Colina 940 Dpto. 504, Barranco, Lima', 'Hola Rosa, soy Diego de UTEC. Me encantó la habitación, ¿podemos coordinar la entrega de llaves?')
+) AS v(correo, direccion, texto)
+WHERE u.id = r.estudiante_id AND h.id = r.habitacion_id
+  AND u.correo = v.correo AND h.direccion = v.direccion AND r.fecha_inicio > CURRENT_DATE;
