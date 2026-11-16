@@ -56,10 +56,11 @@ La vivienda influye en el rendimiento y el gasto del estudiante. Una plataforma 
 | Rol | Funcionalidades |
 |---|---|
 | Visitante | Ver habitaciones (destacadas primero), buscar **habitaciones cercanas** a una universidad por radio en km, ver imágenes y reseñas |
-| Estudiante | Registrarse con correo institucional (`.edu.pe`), reservar, cancelar, **calificar** reservas confirmadas y editar su perfil |
-| Arrendador | Publicar y editar habitaciones (una vez **verificado**), subir imágenes, confirmar reservas, ver el perfil del estudiante y **pagar publicidad** con Stripe |
-| Administrador | Verificar arrendadores, gestionar universidades y eliminar cuentas o calificaciones |
-| Todos | Login con JWT, **refresh token** y **recuperación de contraseña** por correo |
+| Estudiante | Registrarse con correo institucional (`.edu.pe`), buscar por dirección y **rango de precio**, reservar con un **mensaje** para el arrendador, cancelar, **calificar** reservas confirmadas y editar su perfil (foto, celular y "Sobre mí") |
+| Arrendador | Publicar y editar habitaciones con **descripción** (una vez **verificado**), subir fotos, confirmar reservas, ver el perfil del estudiante y **pagar publicidad** con Stripe |
+| Estudiante y arrendador | Al **confirmarse** una reserva, cada uno recibe el **contacto** del otro (correo y celular) por correo y en la app |
+| Administrador | Verificar arrendadores revisando su DNI, gestionar universidades y **moderar**: suspender/reactivar cuentas, ocultar habitaciones y eliminar reseñas (con un motivo que se envía por correo) |
+| Todos | Login con JWT, **refresh token**, **recuperación de contraseña** por correo y **foto de perfil** |
 
 La búsqueda por radio resuelve la cercanía; la verificación y las calificaciones dan confianza; las reservas con correos reemplazan la coordinación informal.
 
@@ -71,7 +72,7 @@ La búsqueda por radio resuelve la cercanía; la verificación y las calificacio
 | Base de datos | PostgreSQL 16 (Docker en local, RDS en producción) |
 | Seguridad | Spring Security, JWT (JJWT 0.12), BCrypt |
 | Mapeo | ModelMapper 3.2 y Lombok |
-| APIs externas | Google Maps Geocoding, Stripe (modo prueba), Gmail SMTP |
+| APIs externas | Google Maps Geocoding, Stripe (modo prueba), Gmail SMTP, Cloudinary (fotos, desde los clientes) |
 | Calidad | JUnit 5 + Mockito, JaCoCo, SLF4J + Logback |
 | Herramientas | Maven, Postman, GitHub |
 
@@ -236,11 +237,12 @@ Base: `/api/v1`. Las rutas protegidas usan `Authorization: Bearer <token>`. Los 
 | Recurso | Endpoints principales | Acceso |
 |---|---|---|
 | Auth | `POST /auth/register/estudiante`, `/auth/register/arrendador`, `/auth/login`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password` | Público |
-| Habitaciones | `GET /habitaciones`, `/habitaciones/{id}`, `/habitaciones/cercanas` · `POST`, `PUT`, `DELETE` | Público / Arrendador dueño |
+| Habitaciones | `GET /habitaciones` (con `q`, `precioMin`, `precioMax` y `orden`), `/habitaciones/{id}`, `/habitaciones/cercanas` · `POST`, `PUT`, `DELETE` | Público / Arrendador dueño |
 | Imágenes y calificaciones | `/habitaciones/{id}/imagenes`, `/habitaciones/{id}/calificaciones`, `/estudiantes/{id}/calificaciones`, `POST /calificaciones` | Público / Arrendador / Estudiante |
-| Reservas | `GET`, `POST /reservas` · `PATCH /reservas/{id}/cancelar` · `PATCH /reservas/{id}/confirmar` | Estudiante / Arrendador dueño |
+| Reservas | `GET`, `POST /reservas` (con `mensaje` opcional) · `PATCH /reservas/{id}/cancelar` · `PATCH /reservas/{id}/confirmar`. Una reserva **confirmada** incluye el `contacto` de la otra parte | Estudiante / Arrendador dueño |
 | Arrendadores y estudiantes | `GET`, `PUT`, `DELETE /{id}` · `PATCH /arrendadores/{id}/verificar` (Admin) · `GET /estudiantes/{id}/perfil` | Autenticado |
 | Universidades | `GET` (público) · `POST`, `DELETE` (Admin) | Público / Admin |
+| Moderación | `PATCH /usuarios/{id}/suspension` · `PATCH /habitaciones/{id}/visibilidad` · `GET /calificaciones` · `DELETE /calificaciones/{id}?motivo=` | Admin |
 | Pagos de publicidad | `POST /pagos-publicidad/intenciones`, `POST /pagos-publicidad/{paymentIntentId}/confirmar`, `GET /pagos-publicidad` | Arrendador |
 
 Los pagos de publicidad se aceptan con Apple Pay y Google Pay mediante Stripe; el backend identifica el wallet confirmado y lo registra como `APPLE_PAY` o `GOOGLE_PAY`. Los pagos semilla antiguos se conservan con el valor generico `TARJETA`.
@@ -272,21 +274,51 @@ La colección [`postman_collection.json`](postman_collection.json) documenta cad
 - **Control de versiones:** cada funcionalidad o corrección se trabajó en su propia rama y se integró a `main` mediante **pull requests** (más de 50).
 - **GitHub Actions:** no se configuró un pipeline; antes de cada pull request se ejecutaban `./mvnw test` y la colección de Postman. Un CI/CD con tests, cobertura y despliegue automático queda como trabajo futuro.
 
+### Participación
+
+| Integrante | GitHub | Aportes principales |
+|---|---|---|
+| Cristhian Gabriel Jinchuña Cama | `cristhianjinchuna-dev` | Frontend web (pantallas de habitaciones, reservas, calificaciones, perfiles, panel del arrendador, modo oscuro, subida de fotos con Cloudinary). Backend: búsqueda y filtros, fotos de perfil, contacto tras la confirmación, descripciones y moderación del admin. App móvil (fotos, contacto, descripciones). Deploy final (HTTPS, Vercel y Expo). |
+| Yerik Dylan Vega Santillan | `Yerik-Vega` | Pagos de publicidad con **Stripe** (backend, web y móvil), integración con **Google Maps** (geocodificación, habitaciones cercanas, mapas y rutas en web y móvil) e imágenes de habitaciones. |
+| Mathias Alonso Cavalcanti Estacio | `MatCavUTEC` | Seguridad (JWT, refresh token, `@PreAuthorize`, CORS), excepciones y `GlobalExceptionHandler`, procesos asíncronos, recuperación de contraseña, documentación y panel de administración web. |
+| Eduardo Raúl Vila Castellares | `Eduardo-Vila-coder` | Esqueleto del backend, entidades, repositorios, DTOs, services y controllers de Habitación y Arrendador. Base de la app móvil (login, registro, recuperación de contraseña y flujos de estudiante y arrendador). |
+| Mathius Edgar Quispe Sicha | `MQS144` | Entidades de Reserva y Habitación, `GlobalExceptionHandler`, validaciones y centralización de excepciones. |
+
 ## 12. Deployment
 
-Desplegado en **AWS** (us-east-1) con **EC2 + RDS**:
+| Parte | Plataforma | URL |
+|---|---|---|
+| **Backend (este repo)** | AWS EC2 + RDS (us-east-1), HTTPS con Caddy + Let's Encrypt | `https://muvu-api.duckdns.org/api/v1` |
+| Web | Vercel | https://muvu-rouge.vercel.app |
+| Móvil | Expo (EAS Update, se abre con Expo Go) | ver el README de `MuvU---Mobile` |
 
 ```mermaid
 flowchart LR
-    U[Cliente] -->|HTTP :8080| EC2[EC2 t2.small · Java 21 + systemd]
-    EC2 -->|JDBC :5432| RDS[(RDS PostgreSQL 18 · privada)]
+    W[Web · Vercel] -->|HTTPS| C
+    M[App móvil · Expo Go] -->|HTTPS| C
+    C[Caddy :443<br/>certificado Let's Encrypt] -->|HTTP local :8080| EC2[Spring Boot · Java 21 + systemd]
+    EC2 -->|JDBC :5432| RDS[(RDS PostgreSQL · privada)]
 ```
 
-- **URL pública:** `http://34.232.110.84:8080/api/v1` (IP elástica).
-- **EC2:** el `.jar` corre como servicio `systemd` (se reinicia si falla).
-- **RDS:** PostgreSQL 18 (`db.t4g.micro`, Single-AZ, cifrada), no accesible públicamente.
-- **Security groups:** `muvu-app-sg` abre el 8080 (API) y el 22 (SSH con llave); `rds-ec2-1` abre el 5432 solo al security group del EC2.
-- **Variables de entorno:** en el servidor (`/etc/muvu.env`, permisos 600), nunca en el repositorio: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `STRIPE_SECRET_KEY`, `GOOGLE_MAPS_API_KEY`, `MAIL_USERNAME` y `MAIL_PASSWORD`.
+- **Dominio:** `muvu-api.duckdns.org` (DuckDNS) apunta a la **IP elástica** `34.232.110.84`, así que no cambia aunque el laboratorio se apague.
+- **HTTPS:** **Caddy** recibe el tráfico en el 443, obtiene y renueva solo el certificado de Let's Encrypt, y lo reenvía al backend en el 8080.
+- **EC2 (`t2.small`, Amazon Linux 2023):** el `.jar` corre como servicio `systemd` (`muvu.service`) y se reinicia si falla. Caddy también es un servicio (`caddy.service`). Ambos arrancan solos al encender la instancia.
+- **RDS:** PostgreSQL (`db.t4g.micro`, Single-AZ, cifrada), no accesible públicamente.
+- **Security groups:** `muvu-app-sg` abre el 80 y el 443 (HTTPS), el 8080 (API directa) y el 22 (SSH); `ec2-rds-1` abre el 5432 solo al security group del EC2.
+- **Variables de entorno:** en el servidor (`/etc/muvu.env`, permisos 600), nunca en el repositorio: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `STRIPE_SECRET_KEY`, `GOOGLE_MAPS_API_KEY`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `CORS_ALLOWED_ORIGINS` (solo la web de Vercel y `localhost`) y `FRONTEND_URL` (enlaces de los correos).
+- **Base de datos de demo:** `ddl-auto=create-drop` + `data.sql`, así cada arranque deja la base con los mismos datos de prueba (cuentas con contraseña `Clave123!`, admin `admin@muvu.com` / `admin123`).
+
+### Actualizar el servidor
+
+```bash
+cd ~/Backend_MUVU && git pull
+cd desarrollo && ./mvnw -q -DskipTests package
+sudo systemctl stop muvu
+cp target/desarrollo-0.0.1-SNAPSHOT.jar ~/app.jar
+sudo systemctl start muvu
+```
+
+> En AWS Academy (Learner Lab) la instancia se apaga al terminar la sesión: antes de usar la app hay que pulsar **Start Lab**. El backend y Caddy arrancan solos.
 
 ## 13. Conclusión
 
@@ -300,7 +332,7 @@ MuvU cubre el ciclo completo de alquiler: búsqueda por cercanía, verificación
 - Eventos asíncronos y trabajo en equipo con ramas y pull requests.
 
 ### Trabajo futuro
-Frontend web y móvil, chat entre estudiante y arrendador, pago del alquiler en la plataforma, subida de imágenes a S3, filtros por precio, documentación con Swagger/OpenAPI y CI/CD con GitHub Actions.
+Chat dentro de la app entre estudiante y arrendador, pago del alquiler en la plataforma, notificaciones push, migraciones con Flyway (en lugar de `create-drop`), documentación con Swagger/OpenAPI y CI/CD con GitHub Actions.
 
 ## 14. Apéndices
 
