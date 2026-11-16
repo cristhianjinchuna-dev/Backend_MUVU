@@ -282,7 +282,7 @@ La colección [`postman_collection.json`](postman_collection.json) documenta cad
 | Yerik Dylan Vega Santillan | `Yerik-Vega` | Pagos de publicidad con **Stripe** (backend, web y móvil), integración con **Google Maps** (geocodificación, habitaciones cercanas, mapas y rutas en web y móvil) e imágenes de habitaciones. |
 | Mathias Alonso Cavalcanti Estacio | `MatCavUTEC` | Seguridad (JWT, refresh token, `@PreAuthorize`, CORS), excepciones y `GlobalExceptionHandler`, procesos asíncronos, recuperación de contraseña, documentación y panel de administración web. |
 | Eduardo Raúl Vila Castellares | `Eduardo-Vila-coder` | Esqueleto del backend, entidades, repositorios, DTOs, services y controllers de Habitación y Arrendador. Base de la app móvil (login, registro, recuperación de contraseña y flujos de estudiante y arrendador). |
-| Mathius Edgar Quispe Sicha | `MQS144` | Entidades de Reserva y Habitación, `GlobalExceptionHandler`, validaciones y centralización de excepciones. |
+| Mathius Edgar Quispe Sicha | `MQS144` | Entidades de Reserva y Habitación, `GlobalExceptionHandler`, validaciones y centralización de excepciones. Desarrollo inicial de la app móvil. |
 
 ## 12. Deployment
 
