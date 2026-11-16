@@ -112,6 +112,7 @@ public class HabitacionService {
         }
 
         Habitacion newHabitacion = modelMapper.map(habitacionRequestDTO, Habitacion.class);
+        newHabitacion.setDescripcion(limpiar(habitacionRequestDTO.getDescripcion()));
         newHabitacion.setArrendador(yo);
 
         aplicarCoordenadas(newHabitacion, habitacionRequestDTO);
@@ -200,6 +201,7 @@ public class HabitacionService {
         habitacion.setDireccion(dto.getDireccion());
         habitacion.setPrecio(dto.getPrecio());
         habitacion.setArea(dto.getArea());
+        habitacion.setDescripcion(limpiar(dto.getDescripcion())); // vacía = sin descripción
         log.info("Habitación {} actualizada", id);
 
         return modelMapper.map(habitacion, HabitacionResponseDTO.class);
@@ -214,6 +216,11 @@ public class HabitacionService {
         LatLng coords = googleMapsService.obtenerCoordenadas(habitacion.getDireccion());
         habitacion.setLatitud(coords.lat);
         habitacion.setLongitud(coords.lng);
+    }
+
+    // Texto opcional: espacios de más fuera, y vacío se guarda como null
+    private static String limpiar(String texto) {
+        return texto == null || texto.isBlank() ? null : texto.trim();
     }
 
     private void validarParCoordenadas(HabitacionRequestDTO dto) {

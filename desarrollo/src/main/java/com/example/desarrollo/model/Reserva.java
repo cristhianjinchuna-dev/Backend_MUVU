@@ -39,6 +39,10 @@ public class Reserva {
     @JoinColumn(name = "habitacion_id", nullable = false)
     private Habitacion habitacion;
 
+    // Mensaje opcional del estudiante al arrendador al enviar la solicitud
+    @Column(length = 500)
+    private String mensaje;
+
     public Reserva(LocalDate fecha_inicio, LocalDate fecha_fin, Estudiante estudiante, Habitacion habitacion) {
         this.fecha_inicio = fecha_inicio;
         this.fecha_fin = fecha_fin;

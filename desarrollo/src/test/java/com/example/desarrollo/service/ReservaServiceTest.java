@@ -73,6 +73,8 @@ class ReservaServiceTest {
 
         assertEquals(Estado.PENDIENTE, respuesta.getEstado());
         assertEquals(3L, respuesta.getEstudianteId());
+        assertEquals("Hola, soy Ana de UTEC", respuesta.getMensaje()); // se guarda sin espacios de más
+        assertNull(respuesta.getContacto()); // pendiente: todavía no se comparte el contacto
         assertEquals(1L, respuesta.getHabitacionId());
         verify(publisher, times(2)).publishEvent(any(NotificacionCorreoEvent.class)); // estudiante y arrendador
     }
@@ -204,7 +206,7 @@ class ReservaServiceTest {
     }
 
     private ReservaRequestDTO solicitud(LocalDate inicio, LocalDate fin) {
-        return new ReservaRequestDTO(inicio, fin, 1L);
+        return new ReservaRequestDTO(inicio, fin, 1L, "  Hola, soy Ana de UTEC  ");
     }
 
     private Reserva reservaPendiente() {

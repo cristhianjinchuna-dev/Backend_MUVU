@@ -18,5 +18,6 @@ public class HabitacionDetailDTO {
     private Double longitud;
     private double precio;
     private Integer area;
+    private String descripcion;
     private List<ImagenResponseDTO> imagenes;
 }

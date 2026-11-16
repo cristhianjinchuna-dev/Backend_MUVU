@@ -19,6 +19,10 @@ public class Estudiante extends Usuario {
     @JoinColumn(name = "universidad_id", nullable = false)
     private Universidad universidad;
 
+    // "Sobre mí": lo ve el arrendador antes de confirmar una reserva. Opcional
+    @Column(length = 500)
+    private String descripcion;
+
     @OneToMany(mappedBy = "estudiante", fetch = FetchType.LAZY)
     private List<Reserva> reservas = new ArrayList<>();
 

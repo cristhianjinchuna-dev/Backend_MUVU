@@ -42,4 +42,8 @@ public class HabitacionRequestDTO {
     @DecimalMin(value = "-180.0", message = "La longitud debe estar entre -180 y 180")
     @DecimalMax(value = "180.0", message = "La longitud debe estar entre -180 y 180")
     private Double longitud;
+
+    // Opcional: servicios, reglas de la casa, cercanías...
+    @Size(max = 1000, message = "La descripción no puede superar 1000 caracteres")
+    private String descripcion;
 }
