@@ -47,7 +47,10 @@ public class ArrendadorService {
 
     // Read (GET)
     public ArrendadorResponseDTO findById(Long id) {
-        return modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
+        ArrendadorResponseDTO dto = modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
+        // El celular es privado: solo lo ve el propio arrendador o el ADMIN
+        if (!usuarioService.puedeVerDatosPrivados(id)) dto.setTelefono(null);
+        return dto;
     }
 
     // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller).
@@ -69,6 +72,10 @@ public class ArrendadorService {
         // null = mantener la foto de perfil actual, "" = quitarla, URL = foto nueva
         if (dto.getFotoPerfil() != null) {
             arrendador.setFotoPerfil(dto.getFotoPerfil().isBlank() ? null : dto.getFotoPerfil());
+        }
+        // null = mantener el celular actual, "" = quitarlo, 9 dígitos = celular nuevo
+        if (dto.getTelefono() != null) {
+            arrendador.setTelefono(dto.getTelefono().isBlank() ? null : dto.getTelefono());
         }
         log.info("Arrendador {} actualizó su perfil", id);
         return modelMapper.map(arrendador, ArrendadorResponseDTO.class);

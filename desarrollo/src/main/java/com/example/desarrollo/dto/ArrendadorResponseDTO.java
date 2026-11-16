@@ -19,4 +19,6 @@ public class ArrendadorResponseDTO {
     private Long totalCalificaciones;
     private Long cantidadHabitaciones;
     private String fotoPerfil;
+    // Solo lo ve el propio usuario o el ADMIN (el service lo oculta para los demás)
+    private String telefono;
 }

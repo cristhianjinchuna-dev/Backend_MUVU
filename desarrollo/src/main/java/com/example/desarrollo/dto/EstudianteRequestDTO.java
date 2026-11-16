@@ -36,4 +36,8 @@ public class EstudianteRequestDTO {
     @NotNull(message = "La universidad es obligatoria")
     @Positive(message = "El ID de la universidad debe ser positivo")
     private Long universidadId;
+
+    // Opcional
+    @Pattern(regexp = "^$|^9\\d{8}$", message = "El celular debe tener 9 dígitos y empezar con 9")
+    private String telefono;
 }

@@ -113,7 +113,10 @@ class ReservaServiceTest {
         ReservaResponseDTO respuesta = reservaService.confirmReserva(10L);
 
         assertEquals(Estado.CONFIRMADO, respuesta.getEstado());
-        verify(publisher).publishEvent(any(NotificacionCorreoEvent.class));
+        // El arrendador recibe en la respuesta el contacto del estudiante
+        assertNotNull(respuesta.getContacto());
+        assertEquals("ana@utec.edu.pe", respuesta.getContacto().getCorreo());
+        verify(publisher, times(2)).publishEvent(any(NotificacionCorreoEvent.class)); // estudiante y arrendador
     }
 
     @Test
@@ -122,7 +125,9 @@ class ReservaServiceTest {
         when(usuarioService.getIdUsuarioActual()).thenReturn(3L);
         when(reservaRepository.save(any(Reserva.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        assertEquals(Estado.CANCELADO, reservaService.cancelReserva(10L).getEstado());
+        ReservaResponseDTO respuesta = reservaService.cancelReserva(10L);
+        assertEquals(Estado.CANCELADO, respuesta.getEstado());
+        assertNull(respuesta.getContacto()); // sin confirmar no se comparten datos
         verify(publisher).publishEvent(any(NotificacionCorreoEvent.class));
     }
 

@@ -6,6 +6,7 @@ import com.example.desarrollo.model.Rol;
 import com.example.desarrollo.model.Usuario;
 import com.example.desarrollo.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +31,13 @@ public class UsuarioService implements UserDetailsService {
     public Long getIdUsuarioActual() {
         Usuario u = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return u.getId();
+    }
+
+    // true si quien consulta es el mismo usuario o un ADMIN (para mostrar datos privados como el celular)
+    public boolean puedeVerDatosPrivados(Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof Usuario yo)) return false;
+        return yo.getRol() == Rol.ADMIN || yo.getId().equals(id);
     }
 
     public void validarQueSoyYo(Long id) {

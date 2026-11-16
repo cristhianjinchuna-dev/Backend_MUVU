@@ -25,4 +25,8 @@ public class ArrendadorUpdateRequestDTO {
     @Size(max = 500, message = "La URL de la foto de perfil no puede superar 500 caracteres")
     @Pattern(regexp = "^$|^https?://\\S+$", message = "La foto de perfil debe ser una URL que empiece con http:// o https://")
     private String fotoPerfil;
+
+    // null = mantener el celular actual, "" = quitarlo, 9 dígitos = celular nuevo
+    @Pattern(regexp = "^$|^9\\d{8}$", message = "El celular debe tener 9 dígitos y empezar con 9")
+    private String telefono;
 }

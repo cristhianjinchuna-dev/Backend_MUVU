@@ -30,4 +30,8 @@ public class ArrendadorRequestDTO {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).+$",
             message = "La contraseña debe tener al menos una mayúscula, una minúscula, un número y un símbolo")
     private String contrasena;
+
+    // Opcional
+    @Pattern(regexp = "^$|^9\\d{8}$", message = "El celular debe tener 9 dígitos y empezar con 9")
+    private String telefono;
 }
