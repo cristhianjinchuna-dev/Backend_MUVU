@@ -141,6 +141,29 @@ public class HabitacionService {
                 .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
     }
 
+    // Listado con búsqueda, rango de precio y orden (GET /habitaciones?q=&precioMin=&precioMax=&orden=)
+    public Page<HabitacionResponseDTO> buscar(String texto, Double precioMin, Double precioMax,
+                                              String orden, Pageable pageable) {
+        if (precioMin != null && precioMax != null && precioMin > precioMax) {
+            throw new InvalidOperationException("El precio mínimo no puede ser mayor que el máximo");
+        }
+
+        Sort sort = switch (orden == null ? "" : orden) {
+            case "precio_asc" -> Sort.by("precio").ascending();
+            case "precio_desc" -> Sort.by("precio").descending();
+            case "area_desc" -> Sort.by("area").descending();
+            default -> Sort.by("esDestacada").descending().and(Sort.by("id").descending());
+        };
+        Pageable conOrden = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        return habitacionRepository.findByDireccionContainingIgnoreCaseAndPrecioBetween(
+                        texto == null ? "" : texto.trim(),
+                        precioMin == null ? 0 : precioMin,
+                        precioMax == null ? Double.MAX_VALUE : precioMax,
+                        conOrden)
+                .map(h -> modelMapper.map(h, HabitacionResponseDTO.class));
+    }
+
     // Habitaciones de un arrendador (su panel), las más recientes primero
     public Page<HabitacionResponseDTO> findByArrendador(Long arrendadorId, Pageable pageable) {
         if (!arrendadorRepository.existsById(arrendadorId)) {

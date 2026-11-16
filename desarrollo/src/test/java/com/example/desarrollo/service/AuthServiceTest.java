@@ -58,7 +58,7 @@ class AuthServiceTest {
         when(jwtService.generateToken(any(Estudiante.class))).thenReturn("jwt");
 
         TokenResponseDTO respuesta = authService.registerEstudiante(
-                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 1L));
+                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 1L, null));
 
         ArgumentCaptor<Estudiante> captor = ArgumentCaptor.forClass(Estudiante.class);
         verify(estudianteRepository).save(captor.capture());
@@ -74,7 +74,7 @@ class AuthServiceTest {
         when(usuarioRepository.existsByCorreo("ana@utec.edu.pe")).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class, () -> authService.registerEstudiante(
-                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 1L)));
+                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 1L, null)));
         verify(estudianteRepository, never()).save(any());
     }
 
@@ -84,7 +84,7 @@ class AuthServiceTest {
         when(universidadRepository.findById(9L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> authService.registerEstudiante(
-                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 9L)));
+                new EstudianteRequestDTO("Ana", "ana@utec.edu.pe", "Clave123!", 9L, null)));
     }
 
     @Test
@@ -94,7 +94,7 @@ class AuthServiceTest {
         when(jwtService.generateToken(any(Arrendador.class))).thenReturn("jwt");
 
         TokenResponseDTO respuesta = authService.registerArrendador(
-                new ArrendadorRequestDTO("Rosa", "rosa@muvu.com", "Clave123!"));
+                new ArrendadorRequestDTO("Rosa", "rosa@muvu.com", "Clave123!", null));
 
         ArgumentCaptor<Arrendador> captor = ArgumentCaptor.forClass(Arrendador.class);
         verify(arrendadorRepository).save(captor.capture());

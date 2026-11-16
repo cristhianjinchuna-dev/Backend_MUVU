@@ -38,7 +38,10 @@ public class EstudianteService {
     public EstudianteResponseDTO getById(Long id) {
         Estudiante estudiante = estudianteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Estudiante no encontrado"));
-        return modelMapper.map(estudiante, EstudianteResponseDTO.class);
+        EstudianteResponseDTO dto = modelMapper.map(estudiante, EstudianteResponseDTO.class);
+        // El celular es privado: solo lo ve el propio estudiante o el ADMIN
+        if (!usuarioService.puedeVerDatosPrivados(id)) dto.setTelefono(null);
+        return dto;
     }
 
     // GET (Obtener todos los estudiantes paginados)
@@ -57,6 +60,14 @@ public class EstudianteService {
 
         estudiante.setNombre(dto.getNombre());
         estudiante.setUniversidad(universidad);
+        // null = mantener la foto actual, "" = quitarla, URL = foto nueva
+        if (dto.getFotoPerfil() != null) {
+            estudiante.setFotoPerfil(dto.getFotoPerfil().isBlank() ? null : dto.getFotoPerfil());
+        }
+        // null = mantener el celular actual, "" = quitarlo, 9 dígitos = celular nuevo
+        if (dto.getTelefono() != null) {
+            estudiante.setTelefono(dto.getTelefono().isBlank() ? null : dto.getTelefono());
+        }
         log.info("Estudiante {} actualizó su perfil", id);
 
         return modelMapper.map(estudianteRepository.save(estudiante), EstudianteResponseDTO.class);

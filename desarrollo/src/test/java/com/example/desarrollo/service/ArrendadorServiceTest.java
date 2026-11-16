@@ -95,7 +95,7 @@ class ArrendadorServiceTest {
 
     @Test
     void update_cambiaNombreYFotoDelDni() {
-        arrendadorService.update(2L, new ArrendadorUpdateRequestDTO("Rosa Quispe", "https://muvu.com/dni.jpg"));
+        arrendadorService.update(2L, new ArrendadorUpdateRequestDTO("Rosa Quispe", "https://muvu.com/dni.jpg", null, null));
 
         verify(usuarioService).validarQueSoyYo(2L);
         assertEquals("Rosa Quispe", arrendador.getNombre());

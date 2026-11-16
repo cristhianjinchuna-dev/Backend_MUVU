@@ -1,5 +1,6 @@
 package com.example.desarrollo.controller;
 
+import com.example.desarrollo.dto.ArrendadorAdminDTO;
 import com.example.desarrollo.dto.ArrendadorResponseDTO;
 import com.example.desarrollo.dto.ArrendadorUpdateRequestDTO;
 import com.example.desarrollo.dto.HabitacionResponseDTO;
@@ -24,10 +25,10 @@ public class ArrendadorController {
     private final ArrendadorService arrendadorService;
     private final HabitacionService habitacionService;
 
-    // Lista de arrendadores para el panel del administrador (paginada)
+    // Lista de arrendadores para el panel del administrador (paginada, con la foto del DNI)
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<Page<ArrendadorResponseDTO>> getAll(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<ArrendadorAdminDTO>> getAll(@PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(arrendadorService.getAll(pageable));
     }
 

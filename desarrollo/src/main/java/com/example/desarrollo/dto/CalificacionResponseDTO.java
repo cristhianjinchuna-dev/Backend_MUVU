@@ -15,6 +15,7 @@ public class CalificacionResponseDTO {
     private String descripcion;
     private Long autorId;
     private String autorNombre;
+    private String autorFotoPerfil;
     private Long habitacionId;
     private Long reservaId;
 }

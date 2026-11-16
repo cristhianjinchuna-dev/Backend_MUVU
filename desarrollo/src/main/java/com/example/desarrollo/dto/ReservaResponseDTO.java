@@ -19,4 +19,6 @@ public class ReservaResponseDTO {
     private LocalDate fecha_inicio;
     private Long habitacionId;
     private Long estudianteId;
+    // Datos de la otra parte (arrendador o estudiante). Solo llega cuando la reserva está CONFIRMADA
+    private ContactoDTO contacto;
 }

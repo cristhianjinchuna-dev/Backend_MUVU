@@ -115,7 +115,7 @@ class ControllersTest {
         assertTrue(respuesta.getHeaders().getLocation().toString().endsWith("/api/v1/habitaciones/1"));
         assertEquals(200, controller.getHabitacionesCercanas(1L, 3.0, 0, 10).getStatusCode().value());
         assertEquals(200, controller.getHabitacionById(1L).getStatusCode().value());
-        assertEquals(200, controller.getAllHabitaciones(0, 10).getStatusCode().value());
+        assertEquals(200, controller.getAllHabitaciones(0, 10, null, null, null, "recomendadas").getStatusCode().value());
         assertEquals(200, controller.updateHabitacion(1L, new HabitacionRequestDTO()).getStatusCode().value());
         assertEquals(204, controller.deleteHabitacion(1L).getStatusCode().value());
         verify(habitacionService).deleteById(1L);

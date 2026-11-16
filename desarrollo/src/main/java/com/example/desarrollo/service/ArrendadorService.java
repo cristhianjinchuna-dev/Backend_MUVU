@@ -2,6 +2,7 @@ package com.example.desarrollo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import com.example.desarrollo.Events.NotificacionCorreoEvent;
+import com.example.desarrollo.dto.ArrendadorAdminDTO;
 import com.example.desarrollo.dto.ArrendadorRequestDTO;
 import com.example.desarrollo.dto.ArrendadorResponseDTO;
 import com.example.desarrollo.dto.ArrendadorUpdateRequestDTO;
@@ -46,13 +47,17 @@ public class ArrendadorService {
 
     // Read (GET)
     public ArrendadorResponseDTO findById(Long id) {
-        return modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
+        ArrendadorResponseDTO dto = modelMapper.map(buscar(id), ArrendadorResponseDTO.class);
+        // El celular es privado: solo lo ve el propio arrendador o el ADMIN
+        if (!usuarioService.puedeVerDatosPrivados(id)) dto.setTelefono(null);
+        return dto;
     }
 
-    // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller)
-    public Page<ArrendadorResponseDTO> getAll(Pageable pageable) {
+    // Lista paginada de todos los arrendadores (solo ADMIN, regla en el controller).
+    // Incluye la foto del DNI para que el admin la revise antes de verificar
+    public Page<ArrendadorAdminDTO> getAll(Pageable pageable) {
         return arrendadorRepository.findAll(pageable)
-                .map(a -> modelMapper.map(a, ArrendadorResponseDTO.class));
+                .map(a -> modelMapper.map(a, ArrendadorAdminDTO.class));
     }
 
     @Transactional
@@ -63,6 +68,14 @@ public class ArrendadorService {
         // Only replace the DNI photo when a new one is sent (empty = keep the current one)
         if (dto.getDniFoto() != null && !dto.getDniFoto().isBlank()) {
             arrendador.setDniFoto(dto.getDniFoto());
+        }
+        // null = mantener la foto de perfil actual, "" = quitarla, URL = foto nueva
+        if (dto.getFotoPerfil() != null) {
+            arrendador.setFotoPerfil(dto.getFotoPerfil().isBlank() ? null : dto.getFotoPerfil());
+        }
+        // null = mantener el celular actual, "" = quitarlo, 9 dígitos = celular nuevo
+        if (dto.getTelefono() != null) {
+            arrendador.setTelefono(dto.getTelefono().isBlank() ? null : dto.getTelefono());
         }
         log.info("Arrendador {} actualizó su perfil", id);
         return modelMapper.map(arrendador, ArrendadorResponseDTO.class);

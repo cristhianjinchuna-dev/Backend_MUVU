@@ -95,7 +95,7 @@ class EstudianteServiceTest {
         when(universidadRepository.findById(2L)).thenReturn(Optional.of(pucp));
         when(estudianteRepository.save(estudiante)).thenReturn(estudiante);
 
-        EstudianteResponseDTO respuesta = estudianteService.updateEstudiante(3L, new EstudianteUpdateRequestDTO("Ana María", 2L));
+        EstudianteResponseDTO respuesta = estudianteService.updateEstudiante(3L, new EstudianteUpdateRequestDTO("Ana María", 2L, null, null));
 
         verify(usuarioService).validarQueSoyYo(3L);
         assertEquals("Ana María", respuesta.getNombre());
@@ -107,7 +107,7 @@ class EstudianteServiceTest {
         doThrow(new ForbiddenException("No")).when(usuarioService).validarQueSoyYo(3L);
 
         assertThrows(ForbiddenException.class,
-                () -> estudianteService.updateEstudiante(3L, new EstudianteUpdateRequestDTO("Ana", 1L)));
+                () -> estudianteService.updateEstudiante(3L, new EstudianteUpdateRequestDTO("Ana", 1L, null, null)));
         verify(estudianteRepository, never()).save(any());
     }
 

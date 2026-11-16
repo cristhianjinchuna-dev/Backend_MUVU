@@ -2,6 +2,7 @@ package com.example.desarrollo.service;
 
 import lombok.extern.slf4j.Slf4j;
 import com.example.desarrollo.Events.NotificacionCorreoEvent;
+import com.example.desarrollo.dto.ContactoDTO;
 import com.example.desarrollo.dto.ReservaRequestDTO;
 import com.example.desarrollo.dto.ReservaResponseDTO;
 import com.example.desarrollo.exceptions.ConflictException;
@@ -36,6 +37,7 @@ public class ReservaService {
     private final UsuarioService usuarioService;
     private final ApplicationEventPublisher publisher;
 
+    @Transactional(readOnly = true)
     public ReservaResponseDTO findById(Long id) {
         Reserva reserva = buscarReserva(id);
         Long miId = usuarioService.getIdUsuarioActual();
@@ -47,9 +49,10 @@ public class ReservaService {
         if (!soyElEstudiante && !soyElDueno) {
             throw new ForbiddenException("No tienes acceso a esta reserva");
         }
-        return toDTO(reserva);
+        return toDTO(reserva, miId);
     }
 
+    @Transactional(readOnly = true)
     public Page<ReservaResponseDTO> findMisReservas(Pageable pageable) {
         Long miId = usuarioService.getIdUsuarioActual();
         Usuario yo = usuarioRepository.findById(miId)
@@ -61,7 +64,7 @@ public class ReservaService {
             case ADMIN      -> reservaRepository.findAll(pageable);
         };
 
-        return reservas.map(this::toDTO);
+        return reservas.map(r -> toDTO(r, miId));
     }
 
     @Transactional
@@ -83,16 +86,16 @@ public class ReservaService {
                         + ". Te avisaremos cuando el arrendador la confirme.");
         notificar(habitacion.getArrendador().getCorreo(), "MuvU: nueva solicitud de reserva",
                 yo.getNombre() + " quiere reservar " + detalle(reserva) + ". Ingresa a MuvU para confirmarla.");
-        return toDTO(reserva);
+        return toDTO(reserva, miId);
     }
 
     // Solo el estudiante que hizo la reserva puede cancelarla
     @Transactional
     public ReservaResponseDTO cancelReserva(Long id) {
         Reserva reserva = buscarReserva(id);
+        Long miId = usuarioService.getIdUsuarioActual();
 
-        if (reserva.getEstudiante() == null
-                || !reserva.getEstudiante().getId().equals(usuarioService.getIdUsuarioActual())) {
+        if (reserva.getEstudiante() == null || !reserva.getEstudiante().getId().equals(miId)) {
             throw new ForbiddenException("Solo el estudiante que hizo la reserva puede cancelarla");
         }
         if (reserva.getEstado() == Estado.CANCELADO) {
@@ -105,15 +108,16 @@ public class ReservaService {
         log.info("Reserva {} cancelada", id);
         notificar(reserva.getHabitacion().getArrendador().getCorreo(), "MuvU: reserva cancelada",
                 reserva.getEstudiante().getNombre() + " canceló su solicitud para " + detalle(reserva) + ".");
-        return toDTO(reservaRepository.save(reserva));
+        return toDTO(reservaRepository.save(reserva), miId);
     }
 
     // Solo el arrendador dueño de la habitación puede confirmar
     @Transactional
     public ReservaResponseDTO confirmReserva(Long id) {
         Reserva reserva = buscarReserva(id);
+        Long miId = usuarioService.getIdUsuarioActual();
 
-        if (!reserva.getHabitacion().getArrendador().getId().equals(usuarioService.getIdUsuarioActual())) {
+        if (!reserva.getHabitacion().getArrendador().getId().equals(miId)) {
             throw new ForbiddenException("Solo el dueño de la habitación puede confirmar la reserva");
         }
         if (reserva.getEstado() == Estado.CANCELADO) {
@@ -124,16 +128,33 @@ public class ReservaService {
 
         reserva.setEstado(Estado.CONFIRMADO);
         log.info("Reserva {} confirmada", id);
-        notificar(reserva.getEstudiante().getCorreo(), "MuvU: tu reserva fue confirmada",
-                "Hola " + reserva.getEstudiante().getNombre() + ", el arrendador confirmó tu reserva para "
-                        + detalle(reserva) + ".");
-        return toDTO(reservaRepository.save(reserva));
+        // Ya hay acuerdo: cada parte recibe los datos de contacto de la otra para coordinar la mudanza
+        Estudiante estudiante = reserva.getEstudiante();
+        Arrendador arrendador = reserva.getHabitacion().getArrendador();
+        notificar(estudiante.getCorreo(), "MuvU: tu reserva fue confirmada",
+                "Hola " + estudiante.getNombre() + ", el arrendador confirmó tu reserva para " + detalle(reserva) + ".\n\n"
+                        + datosDeContacto("arrendador", arrendador)
+                        + "\n\nEscríbele para coordinar la entrega de llaves y el pago.");
+        notificar(arrendador.getCorreo(), "MuvU: confirmaste una reserva",
+                "Hola " + arrendador.getNombre() + ", confirmaste la reserva de " + estudiante.getNombre()
+                        + " para " + detalle(reserva) + ".\n\n"
+                        + datosDeContacto("estudiante", estudiante)
+                        + "\n\nEscríbele para coordinar la entrega de llaves y el pago.");
+        return toDTO(reservaRepository.save(reserva), miId);
     }
 
     // ---------- helpers ----------
 
     private void notificar(String correo, String asunto, String mensaje) {
         publisher.publishEvent(new NotificacionCorreoEvent(this, Mail.para(correo, asunto, mensaje)));
+    }
+
+    private String datosDeContacto(String rol, Usuario u) {
+        String telefono = u.getTelefono() != null ? u.getTelefono() : "no registrado";
+        return "Datos de contacto del " + rol + ":\n"
+                + "• Nombre: " + u.getNombre() + "\n"
+                + "• Correo: " + u.getCorreo() + "\n"
+                + "• Celular / WhatsApp: " + telefono;
     }
 
     private String detalle(Reserva r) {
@@ -160,7 +181,8 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe reserva con el ID: " + id));
     }
 
-    private ReservaResponseDTO toDTO(Reserva r) {
+    // miId = usuario que hace la consulta; define de quién es el contacto que se muestra
+    private ReservaResponseDTO toDTO(Reserva r, Long miId) {
         ReservaResponseDTO dto = new ReservaResponseDTO();
         dto.setId(r.getId());
         dto.setEstado(r.getEstado());
@@ -168,6 +190,23 @@ public class ReservaService {
         dto.setFecha_fin(r.getFecha_fin());
         dto.setHabitacionId(r.getHabitacion() != null ? r.getHabitacion().getId() : null);
         dto.setEstudianteId(r.getEstudiante() != null ? r.getEstudiante().getId() : null);
+        dto.setContacto(contactoPara(r, miId));
         return dto;
+    }
+
+    // Solo con la reserva CONFIRMADA: el estudiante ve al arrendador y el arrendador ve al estudiante.
+    // Para cualquier otro (p. ej. ADMIN) no se comparten datos de contacto
+    private ContactoDTO contactoPara(Reserva r, Long miId) {
+        if (r.getEstado() != Estado.CONFIRMADO || miId == null) return null;
+        Usuario estudiante = r.getEstudiante();
+        Usuario arrendador = r.getHabitacion() != null ? r.getHabitacion().getArrendador() : null;
+        if (estudiante != null && miId.equals(estudiante.getId())) return toContacto(arrendador);
+        if (arrendador != null && miId.equals(arrendador.getId())) return toContacto(estudiante);
+        return null;
+    }
+
+    private ContactoDTO toContacto(Usuario u) {
+        if (u == null) return null;
+        return new ContactoDTO(u.getId(), u.getNombre(), u.getCorreo(), u.getTelefono(), u.getFotoPerfil());
     }
 }

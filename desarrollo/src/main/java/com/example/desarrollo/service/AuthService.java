@@ -56,6 +56,9 @@ public class AuthService {
         e.setContrasena(passwordEncoder.encode(dto.getContrasena()));
         e.setRol(Rol.ESTUDIANTE);
         e.setUniversidad(uni);
+        if (dto.getTelefono() != null && !dto.getTelefono().isBlank()) {
+            e.setTelefono(dto.getTelefono());
+        }
 
         estudianteRepository.save(e);
         log.info("Estudiante {} registrado en la universidad {}", e.getId(), uni.getId());
@@ -72,6 +75,9 @@ public class AuthService {
         a.setCorreo(dto.getCorreo());
         a.setContrasena(passwordEncoder.encode(dto.getContrasena()));
         a.setRol(Rol.ARRENDADOR);
+        if (dto.getTelefono() != null && !dto.getTelefono().isBlank()) {
+            a.setTelefono(dto.getTelefono());
+        }
 
         arrendadorRepository.save(a);
         log.info("Arrendador {} registrado, pendiente de verificación", a.getId());
