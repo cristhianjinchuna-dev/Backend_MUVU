@@ -8,7 +8,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +27,8 @@ import java.net.URI;
 @RequestMapping("/api/v1/habitaciones")
 @RequiredArgsConstructor
 public class HabitacionController {
+
+    private static final String ORDEN_POR_DEFECTO = "recomendadas";
 
     private final HabitacionService habitacionService;
 
@@ -60,14 +65,30 @@ public class HabitacionController {
         return ResponseEntity.ok(habitacionService.findById(id));
     }
 
+    // Listado paginado. Filtros opcionales: q (dirección), precioMin, precioMax y orden
     @GetMapping
     public ResponseEntity<Page<HabitacionResponseDTO>> getAllHabitaciones(
             @RequestParam(defaultValue = "0") @Min(value = 0, message = "La página no puede ser negativa") int page,
             @RequestParam(defaultValue = "10")
             @Min(value = 1, message = "El tamaño de página debe ser al menos 1")
-            @Max(value = 100, message = "El tamaño de página no puede superar 100") int size) {
+            @Max(value = 100, message = "El tamaño de página no puede superar 100") int size,
+            @RequestParam(required = false)
+            @Size(max = 100, message = "La búsqueda no puede superar 100 caracteres") String q,
+            @RequestParam(required = false)
+            @PositiveOrZero(message = "El precio mínimo no puede ser negativo") Double precioMin,
+            @RequestParam(required = false)
+            @PositiveOrZero(message = "El precio máximo no puede ser negativo") Double precioMax,
+            @RequestParam(defaultValue = ORDEN_POR_DEFECTO)
+            @Pattern(regexp = "recomendadas|precio_asc|precio_desc|area_desc",
+                    message = "El orden debe ser recomendadas, precio_asc, precio_desc o area_desc") String orden) {
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(habitacionService.findAll(pageable));
+
+        boolean sinFiltros = (q == null || q.isBlank()) && precioMin == null && precioMax == null
+                && ORDEN_POR_DEFECTO.equals(orden);
+        if (sinFiltros) {
+            return ResponseEntity.ok(habitacionService.findAll(pageable));
+        }
+        return ResponseEntity.ok(habitacionService.buscar(q, precioMin, precioMax, orden, pageable));
     }
 
     @PreAuthorize("hasAuthority('ARRENDADOR')")

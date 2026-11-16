@@ -10,4 +10,8 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
     Long countByArrendadorId(Long arrendadorId);
 
     Page<Habitacion> findByArrendadorId(Long arrendadorId, Pageable pageable);
+
+    // Búsqueda del listado principal: dirección que contenga el texto + precio entre min y max
+    Page<Habitacion> findByDireccionContainingIgnoreCaseAndPrecioBetween(
+            String direccion, double precioMin, double precioMax, Pageable pageable);
 }
